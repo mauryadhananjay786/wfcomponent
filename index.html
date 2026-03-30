@@ -312,7 +312,7 @@
     .cards-grid {
       padding: 20px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(217px, 1fr));
       gap: 14px;
       align-content: start;
     }
@@ -676,9 +676,9 @@
         <button id="allExamplesBtn">Load All</button>
         <button id="exportBtn" class="btn-success">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Export JSON
+          Export Excel
         </button>
-        <button id="premiumImportBtn" hidden>Import JSON</button>
+        <button id="premiumImportBtn" hidden>Import Excel</button>
         <button id="sampleFileBtn" hidden>Sample File</button>
       </div>
     </div>
@@ -746,16 +746,18 @@
   </div>
 </div>
 
-<input id="importFileInput" type="file" accept=".json" hidden />
+<input id="importFileInput" type="file" accept=".xlsx,.xls,.csv,.tsv,.json" hidden />
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script>
 // ══════════════════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════════════════
 const KEY = 'wf_json_examples_v1';
+const PREMIUM_JSON_FILE = './webflow-json-examples-1774894530241.json';
 let items = [];
 let activeTag = 'all';
 let activePlan = 'basic';
@@ -813,6 +815,22 @@ function xmlEscape(v) {
 function slugifyHeader(k) {
   return String(k||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'');
 }
+function getItemKey(item) {
+  const normalized = normalizeItem(item);
+  return `${(normalized.name || '').trim().toLowerCase()}::${normalized.plan}`;
+}
+function mergeUniqueItems(...groups) {
+  const merged = [];
+  const seen = new Set();
+  groups.flat().forEach(item => {
+    const normalized = normalizeItem(item);
+    const key = getItemKey(normalized);
+    if (!normalized.name || seen.has(key)) return;
+    seen.add(key);
+    merged.push(normalized);
+  });
+  return merged;
+}
 
 // ══════════════════════════════════════════════════════════
 //  STORAGE
@@ -829,6 +847,24 @@ function save() {
   localStorage.setItem(KEY, JSON.stringify(items.map(normalizeItem)));
 }
 
+async function loadBundledPremiumItems() {
+  try {
+    const res = await fetch(PREMIUM_JSON_FILE, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const parsed = await res.json();
+    if (!Array.isArray(parsed)) throw new Error('Invalid JSON array');
+    return parsed.map(item => ({
+      ...item,
+      plan: 'premium',
+      updatedAt: item.updatedAt || 0
+    }));
+  } catch (error) {
+    console.warn('Premium JSON load failed:', error);
+    showStatus('Premium JSON file load nahi hui. Local server se open karke dekho.', true);
+    return [];
+  }
+}
+
 // ══════════════════════════════════════════════════════════
 //  NORMALIZE JSON
 // ══════════════════════════════════════════════════════════
@@ -840,23 +876,42 @@ function normalizeJson(text) {
 }
 
 // ══════════════════════════════════════════════════════════
-//  EXPORT JSON — exports ALL visible items
+//  EXPORT EXCEL — exports ALL visible items (localStorage + preset if loaded)
 // ══════════════════════════════════════════════════════════
-document.getElementById('exportBtn').addEventListener('click', () => {
-  const allItems = items.filter(it => normalizeItem(it).plan === activePlan);
-  const exportData = allItems.length ? allItems.map(item => ({
-    name: item.name || '',
-    tags: item.tags || '',
-    plan: item.plan || 'basic',
-    json: item.json || ''
-  })) : [];
-
-  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+function downloadExcelFallback(rows) {
+  const headers = ['Example Name','Tags','Plan','Webflow JSON'];
+  const xmlRows = [
+    `<Row>${headers.map(h=>`<Cell><Data ss:Type="String">${xmlEscape(h)}</Data></Cell>`).join('')}</Row>`,
+    ...rows.map(r=>`<Row>${headers.map(h=>`<Cell><Data ss:Type="String">${xmlEscape(r[h]||'')}</Data></Cell>`).join('')}</Row>`)
+  ].join('');
+  const xml = `<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Examples"><Table>${xmlRows}</Table></Worksheet></Workbook>`;
+  const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `webflow-json-examples-${Date.now()}.json`;
+  a.download = `webflow-json-examples-${Date.now()}.xls`;
   a.click();
-  showStatus(`JSON exported — ${exportData.length} examples`, false);
+}
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  // Export ALL items currently in the gallery (respects current plan)
+  const allItems = items.filter(it => normalizeItem(it).plan === activePlan);
+  const exportRows = allItems.length ? allItems.map(item => ({
+    'Example Name': item.name || '',
+    'Tags': item.tags || '',
+    'Plan': item.plan || 'basic',
+    'Webflow JSON': item.json || ''
+  })) : [{'Example Name':'','Tags':'','Plan':'basic','Webflow JSON':''}];
+
+  if (window.XLSX) {
+    const ws = window.XLSX.utils.json_to_sheet(exportRows);
+    const wb = window.XLSX.utils.book_new();
+    window.XLSX.utils.book_append_sheet(wb, ws, 'Examples');
+    window.XLSX.writeFile(wb, `webflow-json-examples-${Date.now()}.xlsx`);
+    showStatus(`Excel exported — ${exportRows.length} examples`, false);
+    return;
+  }
+  downloadExcelFallback(exportRows);
+  showStatus(`Excel exported — ${exportRows.length} examples (.xls fallback)`, false);
 });
 
 // ══════════════════════════════════════════════════════════
@@ -1136,8 +1191,14 @@ function parseDelimitedText(text) {
 function getRowValue(row,keys){for(const k of keys){const m=Object.keys(row||{}).find(c=>slugifyHeader(c)===slugifyHeader(k));if(m&&String(row[m]||'').trim())return String(row[m]).trim();}return '';}
 async function parseImportRows(file) {
   const name=String(file?.name||'').toLowerCase();
+  if(name.endsWith('.csv')||name.endsWith('.tsv')) return parseDelimitedText(await file.text());
   if(name.endsWith('.json')){const p=JSON.parse(await file.text());return Array.isArray(p)?p:[];}
-  throw new Error('Sirf .json file supported hai.');
+  if((name.endsWith('.xlsx')||name.endsWith('.xls'))&&window.XLSX){
+    const wb=window.XLSX.read(await file.arrayBuffer(),{type:'array'});
+    const sn=wb.SheetNames[0]; if(!sn)return[];
+    return window.XLSX.utils.sheet_to_json(wb.Sheets[sn],{defval:''});
+  }
+  throw new Error('Unsupported file type.');
 }
 function makeExampleFromImportRow(row,index){
   const name=getRowValue(row,['name','title','example name']);
@@ -1292,15 +1353,14 @@ function getAllPresetItems() {
 // ══════════════════════════════════════════════════════════
 //  EVENTS
 // ══════════════════════════════════════════════════════════
-document.getElementById('allExamplesBtn').addEventListener('click', () => {
-  const presetItems = getAllPresetItems();
-  let added = 0;
-  presetItems.forEach(it => {
-    const exists = items.some(x => x.name.toLowerCase() === it.name.toLowerCase());
-    if (!exists) { items.push({...it, updatedAt: Date.now()}); added++; }
-  });
+document.getElementById('allExamplesBtn').addEventListener('click', async () => {
+  const presetItems = getAllPresetItems().map(it=>({...it,updatedAt:Date.now()}));
+  const premiumItems = await loadBundledPremiumItems();
+  const combinedItems = mergeUniqueItems(presetItems, premiumItems);
+  if (items.length && !confirm(`Current examples replace karke saare ${combinedItems.length} examples load karein?`)) return;
+  items = combinedItems;
   save(); render();
-  showStatus(added > 0 ? `${added} new examples added.` : 'Sab examples already exist karte hain.', false);
+  showStatus(`${combinedItems.length} examples loaded.`, false);
 });
 
 document.getElementById('openDock').addEventListener('click', () => {
@@ -1310,11 +1370,7 @@ document.getElementById('closeDock').addEventListener('click', () => { dock.styl
 
 premiumImportBtn.addEventListener('click', () => { importFileInput.value=''; importFileInput.click(); });
 document.getElementById('sampleFileBtn')?.addEventListener('click', () => {
-  const sample = [
-    { name: "Sample Hero Section", tags: "hero, saas", plan: "premium", json: '{"type":"@webflow/XscpData","payload":{"nodes":[],"styles":[],"assets":[],"ix1":[],"ix2":{"interactions":[],"events":[],"actionLists":[]}},"meta":{}}' }
-  ];
-  const blob = new Blob([JSON.stringify(sample, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'premium-import-sample.json'; a.click();
+  const a=document.createElement('a'); a.href='./premium-import-sample.xlsx'; a.download='premium-import-sample.xlsx'; a.click();
 });
 
 searchInput.addEventListener('input', e => { query=(e.target.value||'').trim().toLowerCase(); render(); });
@@ -1328,7 +1384,6 @@ planSelect.addEventListener('change', e => {
 function updatePremiumUI() {
   premiumImportBtn.hidden = activePlan!=='premium';
   sampleFileBtn.hidden = activePlan!=='premium';
-  document.getElementById('allExamplesBtn').hidden = activePlan==='premium';
 }
 
 listEl.addEventListener('click', e => {
@@ -1341,9 +1396,16 @@ listEl.addEventListener('click', e => {
 // ══════════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════════
-load();
-updatePremiumUI();
-render();
+async function init() {
+  load();
+  const premiumItems = await loadBundledPremiumItems();
+  items = mergeUniqueItems(items, premiumItems);
+  save();
+  updatePremiumUI();
+  render();
+}
+
+init();
 </script>
 </body>
 </html>
