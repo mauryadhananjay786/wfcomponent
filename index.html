@@ -3,1409 +3,1329 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Flow Gallery — Webflow JSON Library</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <title>Webflow JSON Gallery</title>
   <style>
     :root {
-      --bg:       #060810;
-      --surface:  #0c0f1a;
-      --panel:    #111520;
-      --border:   rgba(255,255,255,0.07);
-      --border2:  rgba(255,255,255,0.12);
-      --text:     #f0f3ff;
-      --muted:    #7a83a0;
-      --muted2:   #4e5670;
-      --accent:   #5b5ef9;
-      --accent2:  #8083ff;
-      --green:    #2dd4a0;
-      --orange:   #f59e0b;
-      --red:      #f87171;
-
-      --radius-sm: 8px;
-      --radius:    12px;
-      --radius-lg: 16px;
+      --bg: #07090f;
+      --bg2: #0a0d15;
+      --panel: #0f121b;
+      --panel2: #121726;
+      --line: #262c3c;
+      --line2: #30394f;
+      --text: #e8edf8;
+      --muted: #99a3ba;
+      --blue: #5a62ff;
+      --blue2: #7f86ff;
+      --orange: #ff8a5b;
+      --green: #23c38b;
+      --danger: #ff6b6b;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    * { box-sizing: border-box; }
     body {
-      background: var(--bg);
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 0% 0%, #1c2233 0%, var(--bg) 38%), linear-gradient(180deg, #0b0e16 0%, #07090f 100%);
       color: var(--text);
-      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-      min-height: 100vh;
-      font-size: 14px;
+      font-family: "Satoshi", "Syne", "Segoe UI", system-ui, sans-serif;
     }
 
-    /* ── Layout ────────────────────────────────────────── */
-    .layout {
+    .app {
       display: grid;
-      grid-template-columns: 240px 1fr;
+      grid-template-columns: 250px 1fr;
       min-height: 100vh;
     }
 
-    /* ── Sidebar ───────────────────────────────────────── */
     .sidebar {
-      background: var(--surface);
-      border-right: 1px solid var(--border);
+      background: #0a0c12;
+      border-right: 1px solid var(--line);
+      padding: 14px 12px;
       display: flex;
       flex-direction: column;
-      gap: 0;
+      gap: 12px;
       position: sticky;
       top: 0;
       height: 100vh;
-      overflow-y: auto;
-      overflow-x: hidden;
+      overflow: auto;
     }
 
-    .sidebar-brand {
-      padding: 20px 16px 16px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .brand-logo {
+    .brand {
       display: flex;
       align-items: center;
-      gap: 10px;
-    }
-    .brand-icon {
-      width: 32px; height: 32px;
-      border-radius: 9px;
-      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 0 20px rgba(91,94,249,.35);
-      flex-shrink: 0;
-    }
-    .brand-icon svg { width: 16px; height: 16px; }
-    .brand-name {
-      font-size: 15px;
+      gap: 8px;
       font-weight: 800;
+      font-size: 18px;
       letter-spacing: -.02em;
-      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(90,98,255,.15), rgba(127,134,255,.06));
+      border: 1px solid rgba(90,98,255,.32);
     }
-    .brand-sub {
+
+    .brand-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, var(--blue), #8d65ff);
+      box-shadow: 0 0 14px rgba(90,98,255,.5);
+    }
+
+    .side-title {
       font-size: 11px;
+      letter-spacing: .1em;
       color: var(--muted);
-      margin-top: 1px;
-    }
-
-    .sidebar-section {
-      padding: 16px 12px 4px;
-    }
-    .sidebar-label {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: .12em;
       text-transform: uppercase;
-      color: var(--muted2);
-      padding: 0 4px;
-      margin-bottom: 6px;
+      margin: 4px 0 6px;
+      padding: 0 8px;
     }
 
-    .plan-select {
+    .tag-list {
+      display: grid;
+      gap: 6px;
+    }
+
+    .filter-select {
       width: 100%;
-      background: var(--panel);
-      border: 1px solid var(--border2);
+      border: 1px solid var(--line2);
+      border-radius: 9px;
+      background: #111522;
       color: var(--text);
-      padding: 9px 12px;
-      border-radius: var(--radius-sm);
+      padding: 9px 10px;
       font-size: 13px;
-      font-family: inherit;
       outline: none;
-      cursor: pointer;
-      appearance: none;
-      -webkit-appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%237a83a0' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 10px center;
-      padding-right: 30px;
     }
-
-    .tag-list { display: flex; flex-direction: column; gap: 2px; }
 
     .tag-btn {
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      gap: 10px;
+      align-items: center;
       width: 100%;
-      padding: 7px 10px;
-      border-radius: 8px;
-      border: none;
+      border: 1px solid transparent;
       background: transparent;
-      color: var(--muted);
-      font-size: 13px;
-      font-family: inherit;
+      color: #a9b0c2;
+      padding: 8px 10px;
+      border-radius: 8px;
       cursor: pointer;
-      transition: background .12s, color .12s;
-      text-align: left;
       text-transform: capitalize;
-    }
-    .tag-btn:hover { background: rgba(255,255,255,.05); color: var(--text); }
-    .tag-btn.active {
-      background: rgba(91,94,249,.15);
-      color: var(--accent2);
-      font-weight: 600;
-    }
-    .tag-count {
-      font-size: 11px;
-      color: var(--muted2);
-      background: rgba(255,255,255,.06);
-      padding: 1px 6px;
-      border-radius: 20px;
-    }
-    .tag-btn.active .tag-count {
-      background: rgba(91,94,249,.25);
-      color: var(--accent2);
+      font-size: 13px;
     }
 
-    /* ── Main ──────────────────────────────────────────── */
-    .main {
-      display: flex;
-      flex-direction: column;
+    .tag-btn:hover { background: #111522; color: #d5ddf0; }
+    .tag-btn.active {
+      background: linear-gradient(135deg, rgba(90,98,255,.2), rgba(90,98,255,.08));
+      border-color: rgba(90,98,255,.5);
+      color: #fff;
+    }
+
+    .count {
+      font-size: 11px;
+      color: var(--muted);
+      min-width: 18px;
+      text-align: right;
+    }
+
+    .content {
+      display: grid;
+      grid-template-rows: auto auto 1fr;
       min-width: 0;
     }
 
-    /* ── Topbar ────────────────────────────────────────── */
     .topbar {
-      background: rgba(6,8,16,.9);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 20px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(8,10,16,.92);
+      backdrop-filter: blur(8px);
+      padding: 12px 18px;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 12px;
       flex-wrap: wrap;
-      position: sticky;
-      top: 0;
-      z-index: 10;
     }
 
-    .search-wrap {
+    .search {
       flex: 1;
-      min-width: 240px;
-      max-width: 560px;
+      min-width: 260px;
+      max-width: 700px;
       display: flex;
       align-items: center;
       gap: 8px;
-      background: var(--panel);
-      border: 1px solid var(--border2);
-      border-radius: var(--radius-sm);
-      padding: 0 12px;
-      height: 38px;
-      transition: border-color .15s;
+      border: 1px solid var(--line2);
+      border-radius: 10px;
+      background: #0f1118;
+      padding: 8px 10px;
     }
-    .search-wrap:focus-within { border-color: var(--accent); }
-    .search-wrap svg { color: var(--muted); flex-shrink: 0; }
-    .search-input {
-      flex: 1;
-      background: transparent;
+
+    .search input {
+      width: 100%;
       border: none;
       outline: none;
-      color: var(--text);
-      font-size: 13px;
-      font-family: inherit;
-    }
-    .search-input::placeholder { color: var(--muted2); }
-
-    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
-
-    button, .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border: 1px solid var(--border2);
-      background: var(--panel);
-      color: var(--text);
-      border-radius: var(--radius-sm);
-      padding: 0 14px;
-      height: 38px;
-      font-weight: 600;
-      font-size: 12.5px;
-      font-family: inherit;
-      cursor: pointer;
-      transition: background .12s, border-color .12s, color .12s;
-      white-space: nowrap;
-    }
-    button:hover { background: rgba(255,255,255,.08); border-color: var(--border2); }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border: none;
-      color: #fff;
-    }
-    .btn-primary:hover { filter: brightness(1.1); }
-
-    .btn-success {
-      background: rgba(45,212,160,.12);
-      border-color: rgba(45,212,160,.3);
-      color: var(--green);
-    }
-    .btn-success:hover { background: rgba(45,212,160,.2); }
-
-    .btn-danger {
-      background: rgba(248,113,113,.1);
-      border-color: rgba(248,113,113,.25);
-      color: var(--red);
-    }
-
-    .btn-ghost {
       background: transparent;
-      border: none;
-      color: var(--muted);
-      padding: 0 8px;
-      height: 28px;
-      font-size: 12px;
-    }
-    .btn-ghost:hover { color: var(--text); background: rgba(255,255,255,.06); }
-
-    /* ── Hero ──────────────────────────────────────────── */
-    .page-hero {
-      padding: 28px 24px 20px;
-      border-bottom: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(91,94,249,.06) 0%, transparent 100%);
-    }
-    .page-hero h1 {
-      font-size: 26px;
-      font-weight: 800;
-      letter-spacing: -.03em;
-      line-height: 1.2;
-      color: #fff;
-      margin-bottom: 6px;
-    }
-    .page-hero h1 span {
-      background: linear-gradient(90deg, var(--accent2), #a78bfa);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .page-hero p {
-      color: var(--muted);
+      color: var(--text);
       font-size: 14px;
-      line-height: 1.6;
-      max-width: 680px;
     }
 
-    .stats-row {
+    .toolbar {
       display: flex;
-      gap: 20px;
-      margin-top: 16px;
+      gap: 8px;
       flex-wrap: wrap;
     }
-    .stat-pill {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      padding: 6px 12px;
-      background: rgba(255,255,255,.05);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      font-size: 12.5px;
-      color: var(--muted);
-    }
-    .stat-pill strong { color: var(--text); font-weight: 700; }
-    .stat-pill .dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-    }
-    .dot-blue { background: var(--accent2); box-shadow: 0 0 6px var(--accent2); }
-    .dot-green { background: var(--green); box-shadow: 0 0 6px var(--green); }
 
-    /* ── Cards Grid ────────────────────────────────────── */
-    .cards-grid {
-      padding: 20px;
+    button {
+      border: 1px solid var(--line2);
+      background: #141a2a;
+      color: var(--text);
+      border-radius: 9px;
+      padding: 8px 11px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      border-color: rgba(90,98,255,.5);
+      color: white;
+    }
+
+    .danger {
+      background: #2a1717;
+      color: #ffc8c8;
+      border-color: #6b2a2a;
+    }
+
+    .hero {
+      padding: 18px;
+      border-bottom: 1px solid var(--line);
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(217px, 1fr));
-      gap: 14px;
+      gap: 6px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.1;
+      color: #f2f5ff;
+      letter-spacing: -.02em;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 840px;
+      line-height: 1.5;
+    }
+
+    .board {
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
       align-content: start;
     }
 
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      transition: border-color .2s, transform .2s, box-shadow .2s;
-      cursor: pointer;
-    }
-    .card:hover {
-      border-color: rgba(91,94,249,.4);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 32px rgba(0,0,0,.35), 0 0 0 1px rgba(91,94,249,.15);
-    }
-    .card.selected {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px var(--accent), 0 8px 32px rgba(91,94,249,.2);
-    }
-
-    .card-header {
-      padding: 12px 14px 10px;
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 8px;
-      border-bottom: 1px solid var(--border);
-    }
-    .card-title {
-      font-size: 13.5px;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.35;
-      flex: 1;
-    }
-    .card-meta {
-      font-size: 11px;
-      color: var(--muted2);
-      margin-top: 3px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .card-plan-badge {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 20px;
-      letter-spacing: .04em;
-      text-transform: uppercase;
-      flex-shrink: 0;
-    }
-    .badge-basic {
-      background: rgba(255,255,255,.07);
-      color: var(--muted);
-      border: 1px solid var(--border2);
-    }
-    .badge-premium {
-      background: rgba(245,158,11,.15);
-      color: var(--orange);
-      border: 1px solid rgba(245,158,11,.3);
-    }
-
-    /* Preview area */
-    .card-preview {
-      position: relative;
-      margin: 10px;
-      border-radius: 10px;
-      overflow: hidden;
-      background: linear-gradient(140deg, #141c2e, #0e1420);
-      border: 1px solid var(--border);
-      min-height: 130px;
-    }
-    .card-preview img {
-      width: 100%;
-      display: block;
-      object-fit: cover;
-      min-height: 130px;
-    }
-    .preview-no-img {
-      min-height: 130px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 8px;
-      color: var(--muted2);
-    }
-    .preview-no-img svg { opacity: .4; }
-    .preview-no-img span { font-size: 11.5px; }
-    .preview-overlay {
-      position: absolute;
-      inset: auto 0 0 0;
-      background: linear-gradient(0deg, rgba(11,14,25,.95) 0%, transparent 100%);
-      padding: 14px 12px 10px;
-    }
-    .preview-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: #e8efff;
-      line-height: 1.3;
-      margin-bottom: 3px;
-    }
-    .preview-sub {
-      font-size: 11px;
-      color: var(--muted);
-      line-height: 1.35;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .preview-chips {
-      display: flex;
-      gap: 5px;
-      flex-wrap: wrap;
-      margin-top: 5px;
-    }
-    .preview-chip {
-      font-size: 10px;
-      padding: 2px 7px;
-      border-radius: 20px;
-      background: rgba(91,94,249,.18);
-      color: var(--accent2);
-      border: 1px solid rgba(91,94,249,.25);
-    }
-
-    .card-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      padding: 0 12px 8px;
-    }
-    .tag-chip {
-      font-size: 10.5px;
-      padding: 3px 8px;
-      border-radius: 20px;
-      background: rgba(255,255,255,.05);
-      color: var(--muted);
-      border: 1px solid var(--border);
-    }
-
-    .card-actions {
-      display: flex;
-      gap: 6px;
-      padding: 0 12px 12px;
-      margin-top: auto;
-    }
-    .card-actions button {
-      flex: 1;
-      height: 34px;
-      font-size: 12px;
-      padding: 0 10px;
-    }
-
-    /* ── Canvas ────────────────────────────────────────── */
     .canvas-zone {
-      margin: 0 20px 20px;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border2);
+      margin: 0 16px 16px;
+      border: 1px solid var(--line2);
+      border-radius: 12px;
+      background: linear-gradient(180deg, #0f141f, #0b1018);
       overflow: hidden;
-      background: var(--panel);
     }
-    .canvas-topbar {
+
+    .canvas-head {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--border);
+      gap: 10px;
       flex-wrap: wrap;
     }
-    .canvas-meta-text {
+
+    .canvas-meta {
       font-size: 12px;
       color: var(--muted);
     }
+
     .canvas-frame {
       width: 100%;
-      height: 380px;
+      height: 360px;
       border: none;
       display: block;
       background: #0a0a0a;
     }
 
-    /* ── Empty state ────────────────────────────────────── */
-    .empty-state {
+    .card {
+      border: 1px solid var(--line2);
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at top, rgba(127,134,255,.16), transparent 38%),
+        linear-gradient(180deg, rgba(17,22,34,.98), rgba(10,14,24,.98));
+      overflow: hidden;
       display: flex;
       flex-direction: column;
+      min-height: 320px;
+      box-shadow: 0 18px 40px rgba(0,0,0,.24);
+      transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(127,134,255,.42);
+      box-shadow: 0 26px 60px rgba(0,0,0,.34);
+    }
+
+    .card-head {
+      padding: 14px 14px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .name {
+      font-size: 14px;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .meta {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .plan-badge {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-      padding: 60px 20px;
-      text-align: center;
-      color: var(--muted);
-      border: 1px dashed var(--border2);
-      border-radius: var(--radius-lg);
-      margin: 20px;
+      min-width: 54px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      border: 1px solid transparent;
     }
-    .empty-state svg { opacity: .35; }
-    .empty-state h3 { font-size: 15px; color: var(--text); font-weight: 700; }
-    .empty-state p { font-size: 13px; max-width: 340px; line-height: 1.6; }
 
-    /* ── Dock / Drawer ────────────────────────────────── */
+    .plan-badge.free {
+      background: rgba(35, 195, 139, .12);
+      color: #8df0c8;
+      border-color: rgba(35, 195, 139, .36);
+    }
+
+    .plan-badge.pro {
+      background: rgba(255, 138, 91, .12);
+      color: #ffc2ab;
+      border-color: rgba(255, 138, 91, .36);
+    }
+
+    .visual-preview {
+      position: relative;
+      border: 1px solid rgba(72,86,118,.5);
+      border-radius: 18px;
+      margin: 14px;
+      min-height: 220px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(127,134,255,.28), transparent 30%),
+        linear-gradient(145deg, #1a2440, #0d1422 72%);
+      isolation: isolate;
+    }
+
+    .visual-frame {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+      background: #f6f8fc;
+      transform: scale(1.01);
+      transform-origin: center center;
+      transition: transform 260ms ease, filter 260ms ease;
+      filter: saturate(1.04) contrast(1.01);
+      overflow: auto;
+    }
+
+    .card:hover .visual-frame {
+      transform: scale(1.06);
+      filter: saturate(1.08) contrast(1.03);
+    }
+
+    .visual-fallback {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      color: #d6def0;
+      font-size: 12px;
+      text-align: center;
+      z-index: 0;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 0 14px 14px;
+      margin-top: auto;
+    }
+
+    .empty {
+      border: 1px dashed #314056;
+      border-radius: 12px;
+      color: var(--muted);
+      padding: 16px;
+      text-align: center;
+    }
+
     .dock {
       position: fixed;
-      right: 20px;
-      bottom: 20px;
-      width: min(460px, calc(100vw - 32px));
-      display: none;
-      background: var(--surface);
-      border: 1px solid var(--border2);
-      border-radius: var(--radius-lg);
-      box-shadow: 0 24px 60px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.04);
+      right: 18px;
+      bottom: 18px;
+      width: min(430px, calc(100vw - 30px));
+      background: #0f131f;
+      border: 1px solid var(--line2);
+      border-radius: 14px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.45);
       overflow: hidden;
-      z-index: 30;
+      z-index: 20;
+      display: none;
     }
-    .dock-header {
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border);
+
+    .dock-head {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
-    .dock-header-text {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--text);
-    }
-    .dock-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
 
-    .field { display: flex; flex-direction: column; gap: 5px; }
+    .dock-title { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    .dock-body { padding: 10px; display: grid; gap: 8px; }
+
+    .field {
+      display: grid;
+      gap: 4px;
+    }
+
     .field label {
-      font-size: 11px;
-      font-weight: 700;
+      font-size: 10px;
       text-transform: uppercase;
       letter-spacing: .08em;
       color: var(--muted);
     }
+
     .field input, .field textarea {
-      background: var(--panel);
-      border: 1px solid var(--border2);
-      border-radius: var(--radius-sm);
+      width: 100%;
+      border: 1px solid var(--line2);
+      border-radius: 9px;
+      background: #0a101b;
       color: var(--text);
-      padding: 9px 12px;
-      font-size: 12.5px;
-      font-family: 'JetBrains Mono', monospace;
-      outline: none;
-      transition: border-color .15s;
-    }
-    .field input:focus, .field textarea:focus { border-color: var(--accent); }
-    .field textarea { min-height: 110px; resize: vertical; }
-
-    .dock-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-
-    .status-bar {
-      font-size: 12px;
-      padding: 3px 0;
-      min-height: 22px;
-      color: var(--muted);
-    }
-    .status-ok { color: var(--green); }
-    .status-err { color: var(--red); }
-
-    /* ── Dividers ─────────────────────────────────────── */
-    .sidebar-divider {
-      height: 1px;
-      background: var(--border);
-      margin: 8px 0;
+      padding: 9px;
+      font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
     }
 
-    /* ── Scrollbar ─────────────────────────────────────── */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.18); }
+    .field textarea { min-height: 120px; resize: vertical; }
 
-    /* ── Toast ─────────────────────────────────────────── */
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: var(--surface);
-      border: 1px solid var(--border2);
-      border-radius: var(--radius);
-      padding: 10px 18px;
-      font-size: 13px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      box-shadow: 0 12px 40px rgba(0,0,0,.5);
-      opacity: 0;
-      transition: opacity .25s, transform .25s;
-      pointer-events: none;
-      z-index: 100;
-      white-space: nowrap;
-    }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-    .toast.ok { color: var(--green); border-color: rgba(45,212,160,.3); }
-    .toast.err { color: var(--red); border-color: rgba(248,113,113,.3); }
+    .dock-actions { display: flex; gap: 7px; flex-wrap: wrap; }
+    .status { min-height: 16px; font-size: 12px; color: var(--muted); }
+    .ok { color: #90e3c1 !important; }
+    .bad { color: #ffb0b0 !important; }
 
-    @media (max-width: 860px) {
-      .layout { grid-template-columns: 1fr; }
-      .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
-      .dock { position: static; width: auto; margin: 14px 16px; border-radius: var(--radius); }
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--line); }
+      .tag-list { display: none; }
+      .dock { position: static; width: auto; margin: 10px 16px 16px; }
+      .content { grid-template-rows: auto auto auto 1fr; }
     }
   </style>
 </head>
 <body>
-
-<div class="layout">
-  <!-- ── Sidebar ───────────────────────────────── -->
-  <aside class="sidebar">
-    <div class="sidebar-brand">
-      <div class="brand-logo">
-        <div class="brand-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-        </div>
-        <div>
-          <div class="brand-name">Flow Gallery</div>
-          <div class="brand-sub">Webflow JSON Library</div>
-        </div>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-dot"></span><span>Flow Gallery</span></div>
+      <div>
+        <div class="side-title">Filters</div>
+        <select id="tierFilter" class="filter-select">
+          <option value="free">Free</option>
+          <option value="pro">Pro</option>
+        </select>
+        <div class="tag-list" id="tagList"></div>
       </div>
-    </div>
+    </aside>
 
-    <div class="sidebar-section">
-      <div class="sidebar-label">Plan</div>
-      <select id="planSelect" class="plan-select">
-        <option value="basic">Basic</option>
-        <option value="premium">Premium</option>
-      </select>
-    </div>
-
-    <div class="sidebar-divider"></div>
-
-    <div class="sidebar-section" style="flex: 1;">
-      <div class="sidebar-label">Filter by Tag</div>
-      <div class="tag-list" id="tagList"></div>
-    </div>
-  </aside>
-
-  <!-- ── Main ──────────────────────────────────── -->
-  <main class="main">
-    <!-- Topbar -->
-    <div class="topbar">
-      <div class="search-wrap">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input id="searchInput" class="search-input" type="text" placeholder="Search by name, tags…" />
-      </div>
-      <div class="toolbar">
-        <button class="btn-primary" id="openDock">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-          Add Example
-        </button>
-        <button id="allExamplesBtn">Load All</button>
-        <button id="exportBtn" class="btn-success">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Export Excel
-        </button>
-        <button id="premiumImportBtn" hidden>Import Excel</button>
-        <button id="sampleFileBtn" hidden>Sample File</button>
-      </div>
-    </div>
-
-    <!-- Hero -->
-    <div class="page-hero">
-      <h1>Webflow Section <span>JSON Gallery</span></h1>
-      <p>Webflow se copied section JSON yahan save karo. Har card ke Copy JSON button direct Webflow-compatible clipboard format mein copy karta hai.</p>
-      <div class="stats-row">
-        <div class="stat-pill">
-          <span class="dot dot-blue"></span>
-          <strong id="statTotal">0</strong> examples
+    <section class="content">
+      <div class="topbar">
+        <div class="search">
+          <span>🔎</span>
+          <input id="searchInput" type="text" placeholder="Search examples by name or tags..." />
         </div>
-        <div class="stat-pill">
-          <span class="dot dot-green"></span>
-          <strong id="statFiltered">0</strong> visible
+        <div class="toolbar">
+          <button id="openDock" class="primary">+ Add Example</button>
+          <button id="seedBtn">Load Demo Examples</button>
+          <button id="exportBtn">Export JSON</button>
         </div>
       </div>
-    </div>
 
-    <!-- Cards Board -->
-    <div class="cards-grid" id="list"></div>
-
-    <!-- Canvas Preview -->
-    <div class="canvas-zone">
-      <div class="canvas-topbar">
-        <button class="btn-primary" id="previewCanvasBtn">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Show Canvas Preview
-        </button>
-        <div class="canvas-meta-text" id="canvasMeta">Select a card, then click preview.</div>
+      <div class="hero">
+        <h1>Webflow Section JSON Gallery</h1>
+        <p>Webflow se copied section JSON yahan save karo. Har card ke niche <b>Webflow</b> button hai jo direct Webflow-compatible clipboard format me copy karta hai.</p>
       </div>
-      <iframe id="canvasFrame" class="canvas-frame" title="Canvas Preview"></iframe>
-    </div>
-  </main>
-</div>
 
-<!-- ── Dock ───────────────────────────────────── -->
-<div class="dock" id="dock">
-  <div class="dock-header">
-    <span class="dock-header-text">Add / Update Example</span>
-    <button class="btn-ghost" id="closeDock">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
-    </button>
+      <div class="board" id="list"></div>
+      <div class="canvas-zone">
+        <div class="canvas-head">
+          <button id="previewCanvasBtn" class="primary">Show Canvas Preview</button>
+          <div class="canvas-meta" id="canvasMeta">No preview yet.</div>
+        </div>
+        <iframe id="canvasFrame" class="canvas-frame" title="Canvas Preview"></iframe>
+      </div>
+    </section>
   </div>
-  <div class="dock-body">
-    <div class="field">
-      <label>Example Name</label>
-      <input id="exName" type="text" placeholder="Hero Section v1" />
+
+  <div class="dock" id="dock">
+    <div class="dock-head">
+      <div class="dock-title">Add / Update Example</div>
+      <button id="closeDock">✕</button>
     </div>
-    <div class="field">
-      <label>Tags (comma separated)</label>
-      <input id="exTags" type="text" placeholder="hero, navbar, pricing" />
+    <div class="dock-body">
+      <div class="field">
+        <label for="exName">Example Name</label>
+        <input id="exName" type="text" placeholder="Hero Section v1" />
+      </div>
+      <div class="field">
+        <label for="exTags">Tags (comma-separated)</label>
+        <input id="exTags" type="text" placeholder="hero, navbar, pricing" />
+      </div>
+      <div class="field">
+        <label for="jsonInput">Webflow JSON</label>
+        <textarea id="jsonInput" placeholder='{"type":"@webflow/XscpData","payload":{...}}'></textarea>
+      </div>
+      <div class="dock-actions">
+        <button class="primary" id="saveBtn">Save Example</button>
+        <button id="pasteBtn">Paste Clipboard</button>
+        <button id="clearBtn">Clear</button>
+      </div>
+      <div class="status" id="status">Ready.</div>
     </div>
-    <div class="field">
-      <label>Webflow JSON</label>
-      <textarea id="jsonInput" placeholder='{"type":"@webflow/XscpData","payload":{...}}'></textarea>
-    </div>
-    <div class="dock-actions">
-      <button class="btn-primary" id="saveBtn">Save</button>
-      <button id="pasteBtn">Paste Clipboard</button>
-      <button id="clearBtn" class="btn-ghost" style="border: 1px solid var(--border2);">Clear</button>
-    </div>
-    <div id="status" class="status-bar">Ready.</div>
   </div>
-</div>
 
-<input id="importFileInput" type="file" accept=".xlsx,.xls,.csv,.tsv,.json" hidden />
+  <script>
+    const KEY = 'wf_json_examples_v1';
+    const PRO_LIBRARY_URL = 'webflow-json-examples-1774894530241.json';
 
-<!-- Toast -->
-<div class="toast" id="toast"></div>
+    const listEl = document.getElementById('list');
+    const tagListEl = document.getElementById('tagList');
+    const statusEl = document.getElementById('status');
+    const exName = document.getElementById('exName');
+    const exTags = document.getElementById('exTags');
+    const jsonInput = document.getElementById('jsonInput');
+    const searchInput = document.getElementById('searchInput');
+    const tierFilter = document.getElementById('tierFilter');
+    const dock = document.getElementById('dock');
+    const previewCanvasBtn = document.getElementById('previewCanvasBtn');
+    const canvasMeta = document.getElementById('canvasMeta');
+    const canvasFrame = document.getElementById('canvasFrame');
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script>
-// ══════════════════════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════════════════════
-const KEY = 'wf_json_examples_v1';
-const PREMIUM_JSON_FILE = './webflow-json-examples-1774894530241.json';
-let items = [];
-let activeTag = 'all';
-let activePlan = 'basic';
-let query = '';
-let selectedPreviewIdx = null;
+    let items = [];
+    let activeTag = '';
+    let activeTier = 'free';
+    let query = '';
+    let selectedPreviewIdx = null;
+    let proLibraryLoaded = false;
 
-const listEl = document.getElementById('list');
-const tagListEl = document.getElementById('tagList');
-const statusEl = document.getElementById('status');
-const exName = document.getElementById('exName');
-const exTags = document.getElementById('exTags');
-const jsonInput = document.getElementById('jsonInput');
-const searchInput = document.getElementById('searchInput');
-const planSelect = document.getElementById('planSelect');
-const premiumImportBtn = document.getElementById('premiumImportBtn');
-const sampleFileBtn = document.getElementById('sampleFileBtn');
-const importFileInput = document.getElementById('importFileInput');
-const dock = document.getElementById('dock');
-const previewCanvasBtn = document.getElementById('previewCanvasBtn');
-const canvasMeta = document.getElementById('canvasMeta');
-const canvasFrame = document.getElementById('canvasFrame');
-const toastEl = document.getElementById('toast');
+    function showStatus(msg, bad) {
+      statusEl.textContent = msg;
+      statusEl.className = bad ? 'status bad' : 'status ok';
+    }
 
-// ══════════════════════════════════════════════════════════
-//  TOAST
-// ══════════════════════════════════════════════════════════
-let toastTimer;
-function showToast(msg, isErr = false) {
-  clearTimeout(toastTimer);
-  toastEl.textContent = msg;
-  toastEl.className = 'toast show ' + (isErr ? 'err' : 'ok');
-  toastTimer = setTimeout(() => { toastEl.className = 'toast'; }, 3000);
-  // also update dock status
-  statusEl.textContent = msg;
-  statusEl.className = 'status-bar ' + (isErr ? 'status-err' : 'status-ok');
-}
-
-function showStatus(msg, bad) { showToast(msg, bad); }
-
-// ══════════════════════════════════════════════════════════
-//  HELPERS
-// ══════════════════════════════════════════════════════════
-function normalizeItem(item) {
-  return { ...item, plan: item?.plan === 'premium' ? 'premium' : 'basic' };
-}
-function splitTags(tags) {
-  return String(tags || '').split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
-}
-function escapeHtml(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-function xmlEscape(v) {
-  return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function slugifyHeader(k) {
-  return String(k||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'');
-}
-function getItemKey(item) {
-  const normalized = normalizeItem(item);
-  return `${(normalized.name || '').trim().toLowerCase()}::${normalized.plan}`;
-}
-function mergeUniqueItems(...groups) {
-  const merged = [];
-  const seen = new Set();
-  groups.flat().forEach(item => {
-    const normalized = normalizeItem(item);
-    const key = getItemKey(normalized);
-    if (!normalized.name || seen.has(key)) return;
-    seen.add(key);
-    merged.push(normalized);
-  });
-  return merged;
-}
-
-// ══════════════════════════════════════════════════════════
-//  STORAGE
-// ══════════════════════════════════════════════════════════
-function load() {
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) { items = []; return; }
-    const parsed = JSON.parse(raw);
-    items = Array.isArray(parsed) ? parsed.map(normalizeItem) : [];
-  } catch(_) { items = []; }
-}
-function save() {
-  localStorage.setItem(KEY, JSON.stringify(items.map(normalizeItem)));
-}
-
-async function loadBundledPremiumItems() {
-  try {
-    const res = await fetch(PREMIUM_JSON_FILE, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const parsed = await res.json();
-    if (!Array.isArray(parsed)) throw new Error('Invalid JSON array');
-    return parsed.map(item => ({
-      ...item,
-      plan: 'premium',
-      updatedAt: item.updatedAt || 0
-    }));
-  } catch (error) {
-    console.warn('Premium JSON load failed:', error);
-    showStatus('Premium JSON file load nahi hui. Local server se open karke dekho.', true);
-    return [];
-  }
-}
-
-// ══════════════════════════════════════════════════════════
-//  NORMALIZE JSON
-// ══════════════════════════════════════════════════════════
-function normalizeJson(text) {
-  const parsed = JSON.parse(text);
-  if (parsed?.code && typeof parsed.code === 'string') return JSON.stringify(JSON.parse(parsed.code));
-  if (parsed?.payload?.code && typeof parsed.payload.code === 'string') return JSON.stringify(JSON.parse(parsed.payload.code));
-  return JSON.stringify(parsed);
-}
-
-// ══════════════════════════════════════════════════════════
-//  EXPORT EXCEL — exports ALL visible items (localStorage + preset if loaded)
-// ══════════════════════════════════════════════════════════
-function downloadExcelFallback(rows) {
-  const headers = ['Example Name','Tags','Plan','Webflow JSON'];
-  const xmlRows = [
-    `<Row>${headers.map(h=>`<Cell><Data ss:Type="String">${xmlEscape(h)}</Data></Cell>`).join('')}</Row>`,
-    ...rows.map(r=>`<Row>${headers.map(h=>`<Cell><Data ss:Type="String">${xmlEscape(r[h]||'')}</Data></Cell>`).join('')}</Row>`)
-  ].join('');
-  const xml = `<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Examples"><Table>${xmlRows}</Table></Worksheet></Workbook>`;
-  const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `webflow-json-examples-${Date.now()}.xls`;
-  a.click();
-}
-
-document.getElementById('exportBtn').addEventListener('click', () => {
-  // Export ALL items currently in the gallery (respects current plan)
-  const allItems = items.filter(it => normalizeItem(it).plan === activePlan);
-  const exportRows = allItems.length ? allItems.map(item => ({
-    'Example Name': item.name || '',
-    'Tags': item.tags || '',
-    'Plan': item.plan || 'basic',
-    'Webflow JSON': item.json || ''
-  })) : [{'Example Name':'','Tags':'','Plan':'basic','Webflow JSON':''}];
-
-  if (window.XLSX) {
-    const ws = window.XLSX.utils.json_to_sheet(exportRows);
-    const wb = window.XLSX.utils.book_new();
-    window.XLSX.utils.book_append_sheet(wb, ws, 'Examples');
-    window.XLSX.writeFile(wb, `webflow-json-examples-${Date.now()}.xlsx`);
-    showStatus(`Excel exported — ${exportRows.length} examples`, false);
-    return;
-  }
-  downloadExcelFallback(exportRows);
-  showStatus(`Excel exported — ${exportRows.length} examples (.xls fallback)`, false);
-});
-
-// ══════════════════════════════════════════════════════════
-//  EXTRACT PREVIEW
-// ══════════════════════════════════════════════════════════
-function extractPreview(jsonText) {
-  try {
-    const parsed = JSON.parse(jsonText);
-    if (!parsed?.payload) return { title:'Saved JSON', sub:'Not a Webflow XscpData payload', image:'', nodes:0, styles:0 };
-    const nodes = Array.isArray(parsed.payload.nodes) ? parsed.payload.nodes : [];
-    const styles = Array.isArray(parsed.payload.styles) ? parsed.payload.styles : [];
-    const idMap = new Map(nodes.map(n=>[n._id,n]));
-    function firstText(node, d) {
-      if (!node || d>4) return '';
-      for (const id of (node.children||[])) {
-        const c = idMap.get(id); if (!c) continue;
-        if (c.text===true && c.v) return String(c.v).trim();
-        const t = firstText(c,d+1); if (t) return t;
+    function load() {
+      try {
+        const raw = localStorage.getItem(KEY);
+        if (!raw) { items = []; return; }
+        const parsed = JSON.parse(raw);
+        items = Array.isArray(parsed) ? parsed : [];
+      } catch (_) {
+        items = [];
       }
-      return '';
     }
-    let title='', sub='', image='';
-    for (const n of nodes) {
-      if (!title && (n.type==='Heading'||/^h[1-6]$/i.test(n.tag||''))) title = firstText(n,0);
-      if (!sub && (n.type==='Paragraph'||n.tag==='p')) sub = firstText(n,0);
-      if (!image && n.type==='Image' && n.data?.attr?.src) image = String(n.data.attr.src);
-      if (title&&sub&&image) break;
+
+    function save() {
+      localStorage.setItem(KEY, JSON.stringify(items));
     }
-    return { title: title||'Webflow Section', sub: sub||'Saved section ready to copy.', image: image||'', nodes: nodes.length, styles: styles.length };
-  } catch(_) {
-    return { title:'Saved JSON', sub:'Unable to parse preview.', image:'', nodes:0, styles:0 };
-  }
-}
 
-// ══════════════════════════════════════════════════════════
-//  RENDER
-// ══════════════════════════════════════════════════════════
-function matchesFilter(item) {
-  if (normalizeItem(item).plan !== activePlan) return false;
-  const text = `${item.name||''} ${item.tags||''}`.toLowerCase();
-  if (query && !text.includes(query)) return false;
-  if (activeTag === 'all') return true;
-  return splitTags(item.tags).includes(activeTag);
-}
+    function itemKey(item) {
+      return `${String(item?.name || '').trim().toLowerCase()}::${String(item?.json || '').trim()}`;
+    }
 
-function getTagCounts() {
-  const scoped = items.filter(it=>normalizeItem(it).plan===activePlan);
-  const counts = { all: scoped.length };
-  scoped.forEach(it=>splitTags(it.tags).forEach(t=>{ counts[t]=(counts[t]||0)+1; }));
-  return counts;
-}
+    function normalizeImportedItems(arr) {
+      if (!Array.isArray(arr)) return [];
+      return arr
+        .filter(Boolean)
+        .map((item) => ({
+          ...item,
+          tier: item?.tier || (String(item?.plan || '').toLowerCase() === 'premium' ? 'pro' : item?.tier),
+          updatedAt: Number(item?.updatedAt) || 0
+        }));
+    }
 
-function renderTags() {
-  const counts = getTagCounts();
-  const tags = Object.keys(counts).sort((a,b)=>a==='all'?-1:b==='all'?1:counts[b]-counts[a]);
-  tagListEl.innerHTML = tags.map(tag=>`
-    <button class="tag-btn ${activeTag===tag?'active':''}" onclick="setTag('${tag.replace(/'/g,"\\'")}')">
-      <span>${escapeHtml(tag)}</span>
-      <span class="tag-count">${counts[tag]}</span>
-    </button>`).join('');
-}
+    async function loadProLibrary() {
+      if (proLibraryLoaded) return;
+      try {
+        const res = await fetch(PRO_LIBRARY_URL, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const raw = await res.json();
+        const imported = normalizeImportedItems(raw);
+        if (!imported.length) {
+          proLibraryLoaded = true;
+          return;
+        }
 
-window.setTag = function(tag) { activeTag = tag; render(); };
+        const existing = new Set(items.map(itemKey));
+        imported.forEach((item) => {
+          const key = itemKey(item);
+          if (existing.has(key)) return;
+          existing.add(key);
+          items.push(item);
+        });
 
-function updateStats(total, filtered) {
-  document.getElementById('statTotal').textContent = total;
-  document.getElementById('statFiltered').textContent = filtered;
-}
+        proLibraryLoaded = true;
+        render();
+      } catch (e) {
+        console.warn('Unable to load Pro library:', e);
+      }
+    }
 
-function render() {
-  renderTags();
-  const filtered = items.filter(matchesFilter);
-  const total = items.filter(it=>normalizeItem(it).plan===activePlan).length;
-  updateStats(total, filtered.length);
+    function escapeHtml(s) {
+      return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
 
-  if (!filtered.length) {
-    listEl.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <h3>No examples found</h3>
-      <p>Try a different search or tag, or add a new example using the + button.</p>
-    </div>`;
-    return;
-  }
+    function normalizeJson(text) {
+      const parsed = JSON.parse(text);
 
-  if (selectedPreviewIdx==null || !items[selectedPreviewIdx]) {
-    selectedPreviewIdx = items.indexOf(filtered[0]);
-  }
+      // Support wrapped API format: {"code":"{...@webflow/XscpData...}"}
+      if (parsed && typeof parsed.code === 'string') {
+        const inner = JSON.parse(parsed.code);
+        return JSON.stringify(inner);
+      }
 
-  listEl.innerHTML = filtered.map(it => {
-    const idx = items.indexOf(it);
-    const pv = extractPreview(it.json);
-    const tags = splitTags(it.tags);
-    const selected = selectedPreviewIdx === idx;
-    const plan = normalizeItem(it).plan;
-    const size = (it.json||'').length;
-    const sizeLabel = size > 1000 ? (size/1000).toFixed(1)+'k chars' : size+' chars';
+      // Support nested payload wrappers if any source sends them.
+      if (parsed && parsed.payload && typeof parsed.payload.code === 'string') {
+        const inner = JSON.parse(parsed.payload.code);
+        return JSON.stringify(inner);
+      }
 
-    return `<article class="card ${selected?'selected':''}" data-idx="${idx}" onclick="selectCard(${idx})">
-      <div class="card-header">
-        <div>
-          <div class="card-title">${escapeHtml(it.name||'Untitled')}</div>
-          <div class="card-meta">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-            ${sizeLabel}
-          </div>
-        </div>
-        <span class="card-plan-badge badge-${plan}">${plan}</span>
-      </div>
-      <div class="card-preview">
-        ${pv.image ? `<img src="${escapeHtml(pv.image)}" alt="" loading="lazy">` : `
-          <div class="preview-no-img">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            <span>No preview image</span>
-          </div>`}
-        <div class="preview-overlay">
-          <div class="preview-title">${escapeHtml(pv.title)}</div>
-          ${pv.sub ? `<div class="preview-sub">${escapeHtml(pv.sub.slice(0,100))}</div>` : ''}
-          <div class="preview-chips">
-            <span class="preview-chip">${pv.nodes} nodes</span>
-            <span class="preview-chip">${pv.styles} styles</span>
-          </div>
-        </div>
-      </div>
-      ${tags.length ? `<div class="card-tags">${tags.map(t=>`<span class="tag-chip">${escapeHtml(t)}</span>`).join('')}</div>` : ''}
-      <div class="card-actions">
-        <button class="btn-primary" onclick="event.stopPropagation();copyItem(${idx})">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          Copy JSON
+      return JSON.stringify(parsed);
+    }
+
+    function wfId() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    function makeDemoJson(headline, sub, image) {
+      const sectionId = wfId();
+      const containerId = wfId();
+      const hId = wfId();
+      const pId = wfId();
+      const imgId = wfId();
+      const t1 = wfId();
+      const t2 = wfId();
+      const clsSection = wfId();
+      const clsContainer = wfId();
+      const clsTitle = wfId();
+      const clsSub = wfId();
+      const clsImg = wfId();
+
+      return JSON.stringify({
+        type: "@webflow/XscpData",
+        payload: {
+          nodes: [
+            { _id: sectionId, type: "Section", tag: "section", classes: [clsSection], children: [containerId], data: { tag: "section", devlink: { runtimeProps: {}, slot: "" }, displayName: "", attr: { id: "" }, xattr: [], search: { exclude: false }, visibility: { conditions: [] } } },
+            { _id: containerId, type: "Block", tag: "div", classes: [clsContainer], children: [hId, pId, imgId], data: { text: false, tag: "div", devlink: { runtimeProps: {}, slot: "" }, displayName: "", attr: { id: "" }, xattr: [], search: { exclude: false }, visibility: { conditions: [] } } },
+            { _id: hId, type: "Heading", tag: "h2", classes: [clsTitle], children: [t1], data: { tag: "h2", devlink: { runtimeProps: {}, slot: "" }, displayName: "", attr: { id: "" }, xattr: [], search: { exclude: false }, visibility: { conditions: [] } } },
+            { _id: t1, text: true, v: headline },
+            { _id: pId, type: "Paragraph", tag: "p", classes: [clsSub], children: [t2], data: { devlink: { runtimeProps: {}, slot: "" }, displayName: "", attr: { id: "" }, xattr: [], search: { exclude: false }, visibility: { conditions: [] } } },
+            { _id: t2, text: true, v: sub },
+            { _id: imgId, type: "Image", tag: "img", classes: [clsImg], children: [], data: { img: {}, srcsetDisabled: false, attr: { width: "auto", height: "auto", alt: "preview", src: image, loading: "auto", id: "" }, sizes: [], devlink: { runtimeProps: {}, slot: "" }, displayName: "", xattr: [], search: { exclude: false }, visibility: { conditions: [] } } }
+          ],
+          styles: [
+            { _id: clsSection, fake: false, type: "class", name: "demo-section", namespace: "", comb: "", styleLess: "padding-top: 72px; padding-right: 5%; padding-bottom: 72px; padding-left: 5%; background: #f8fafc;", variants: {}, children: [], createdBy: null, origin: null, selector: null },
+            { _id: clsContainer, fake: false, type: "class", name: "demo-container", namespace: "", comb: "", styleLess: "width: 100%; max-width: 72rem; margin-right: auto; margin-left: auto; display: flex; flex-direction: column; row-gap: 12px;", variants: {}, children: [], createdBy: null, origin: null, selector: null },
+            { _id: clsTitle, fake: false, type: "class", name: "demo-title", namespace: "", comb: "", styleLess: "font-size: 2rem; color: #0f172a;", variants: {}, children: [], createdBy: null, origin: null, selector: null },
+            { _id: clsSub, fake: false, type: "class", name: "demo-sub", namespace: "", comb: "", styleLess: "color: #64748b; font-size: 1rem; line-height: 1.6;", variants: {}, children: [], createdBy: null, origin: null, selector: null },
+            { _id: clsImg, fake: false, type: "class", name: "demo-image", namespace: "", comb: "", styleLess: "width: 100%; border-top-left-radius: 16px; border-top-right-radius: 16px; border-bottom-right-radius: 16px; border-bottom-left-radius: 16px;", variants: {}, children: [], createdBy: null, origin: null, selector: null }
+          ],
+          assets: [],
+          ix1: [],
+          ix2: { interactions: [], events: [], actionLists: [] }
+        },
+        meta: {
+          droppedLinks: 0,
+          dynBindRemovedCount: 0,
+          dynListBindRemovedCount: 0,
+          paginationRemovedCount: 0,
+          universalBindingsRemovedCount: 0,
+          unlinkedSymbolCount: 0,
+          codeComponentsRemovedCount: 0
+        }
+      });
+    }
+
+    function getDemoItems() {
+      return [
+        {
+          name: 'Enterprise SaaS Hero',
+          tags: 'hero, saas, enterprise, conversion',
+          json: makeDemoJson(
+            'Scale product storytelling with a modular hero system',
+            'Performance-focused headline, supporting copy, and a visual-first launch block.',
+            'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1600&auto=format&fit=crop'
+          )
+        },
+        {
+          name: 'Feature Grid Pro',
+          tags: 'features, grid, product, content',
+          json: makeDemoJson(
+            'Show product value in structured feature clusters',
+            'Reusable feature layout designed for high-scan readability and visual hierarchy.',
+            'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1600&auto=format&fit=crop'
+          )
+        },
+        {
+          name: 'Testimonial Wall Pro',
+          tags: 'testimonial, trust, social-proof, b2b',
+          json: makeDemoJson(
+            'Trusted by high-growth product teams',
+            'Social proof section optimized for credibility and conversion lift.',
+            'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=1600&auto=format&fit=crop'
+          )
+        },
+        {
+          name: 'Pricing Comparison Pro',
+          tags: 'pricing, plans, comparison',
+          json: makeDemoJson(
+            'Pricing designed for clear decision-making',
+            'Tiered plan narrative with sharp contrast between starter, growth, and scale.',
+            'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=1600&auto=format&fit=crop'
+          )
+        },
+        {
+          name: 'Case Study Spotlight',
+          tags: 'case-study, storytelling, conversion',
+          json: makeDemoJson(
+            'From fragmented pages to a unified web engine',
+            'Long-form case study section built for measurable business outcomes.',
+            'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1600&auto=format&fit=crop'
+          )
+        },
+        {
+          name: 'FAQ Conversion Block',
+          tags: 'faq, support, objections',
+          json: makeDemoJson(
+            'Answer objections before they block conversion',
+            'FAQ structure tuned for clarity, trust, and reduced bounce.',
+            'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1600&auto=format&fit=crop'
+          )
+        },
+        {
+          name: 'CTA Banner Premium',
+          tags: 'cta, banner, marketing',
+          json: makeDemoJson(
+            'Turn intent into action with one focused CTA',
+            'High-contrast action module for product tours, demos, and signups.',
+            'https://images.unsplash.com/photo-1552581234-26160f608093?q=80&w=1600&auto=format&fit=crop'
+          )
+        },
+        {
+          name: 'Blog Cards Editorial',
+          tags: 'blog, content, editorial',
+          json: makeDemoJson(
+            'Editorial cards that support growth content',
+            'Modern article card section with strong typography and metadata rhythm.',
+            'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?q=80&w=1600&auto=format&fit=crop'
+          )
+        },
+        {
+          name: 'Team Section Executive',
+          tags: 'team, company, profile',
+          json: makeDemoJson(
+            'Highlight the people behind the product',
+            'Leadership-focused section for trust, authority, and brand personality.',
+            'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop'
+          )
+        },
+        {
+          name: 'Footer Multi-Column Pro',
+          tags: 'footer, navigation, links',
+          json: makeDemoJson(
+            'Footer architecture built for large sites',
+            'Structured multi-column layout for product, company, resources, and legal.',
+            'https://images.unsplash.com/photo-1509395176047-4a66953fd231?q=80&w=1600&auto=format&fit=crop'
+          )
+        }
+      ];
+    }
+
+    function extractPreviewFromJson(jsonText) {
+      try {
+        const parsed = JSON.parse(jsonText);
+        if (!parsed || parsed.type !== '@webflow/XscpData' || !parsed.payload) {
+          return { title: 'Saved JSON', sub: 'Not a Webflow XscpData payload', image: '', nodes: 0, styles: 0 };
+        }
+
+        const nodes = Array.isArray(parsed.payload.nodes) ? parsed.payload.nodes : [];
+        const styles = Array.isArray(parsed.payload.styles) ? parsed.payload.styles : [];
+        const idMap = new Map(nodes.map(n => [n._id, n]));
+
+        function firstTextFrom(node, depth) {
+          if (!node || depth > 4) return '';
+          const kids = Array.isArray(node.children) ? node.children : [];
+          for (const id of kids) {
+            const child = idMap.get(id);
+            if (!child) continue;
+            if (child.text === true && child.v) return String(child.v).trim();
+            const nested = firstTextFrom(child, depth + 1);
+            if (nested) return nested;
+          }
+          return '';
+        }
+
+        let title = '';
+        let sub = '';
+        let image = '';
+
+        for (const n of nodes) {
+          if (!title && (n.type === 'Heading' || /^h[1-6]$/i.test(n.tag || ''))) {
+            title = firstTextFrom(n, 0);
+          }
+          if (!sub && (n.type === 'Paragraph' || n.tag === 'p')) {
+            sub = firstTextFrom(n, 0);
+          }
+          if (!image && n.type === 'Image' && n.data && n.data.attr && n.data.attr.src) {
+            image = String(n.data.attr.src);
+          }
+          if (title && sub && image) break;
+        }
+
+        return {
+          title: title || 'Webflow Section',
+          sub: sub || 'Saved section ready to copy into Webflow.',
+          image: image || '',
+          nodes: nodes.length,
+          styles: styles.length
+        };
+      } catch (_) {
+        return { title: 'Saved JSON', sub: 'Unable to parse preview for this item.', image: '', nodes: 0, styles: 0 };
+      }
+    }
+
+    function tryPrettyJson(raw) {
+      const parsed = JSON.parse(raw);
+      return JSON.stringify(parsed, null, 2);
+    }
+
+    function splitTags(tags) {
+      return String(tags || '')
+        .split(',')
+        .map(t => t.trim().toLowerCase())
+        .filter(Boolean);
+    }
+
+    function getTier(item) {
+      if (item && typeof item.tier === 'string') {
+        const explicitTier = item.tier.trim().toLowerCase();
+        if (explicitTier === 'free' || explicitTier === 'pro') return explicitTier;
+      }
+
+      if (item && typeof item.plan === 'string') {
+        const explicitPlan = item.plan.trim().toLowerCase();
+        if (explicitPlan === 'premium' || explicitPlan === 'pro') return 'pro';
+        if (explicitPlan === 'free') return 'free';
+      }
+
+      const tags = splitTags(item && item.tags);
+      const proHints = new Set(['pro', 'premium', 'enterprise', 'executive']);
+      return tags.some(tag => proHints.has(tag)) ? 'pro' : 'free';
+    }
+
+    function buildIdMap(arr) {
+      const m = {};
+      (arr || []).forEach(x => { m[x._id] = x; });
+      return m;
+    }
+
+    function buildClassMap(styles) {
+      const m = {};
+      (styles || []).forEach(s => { m[s._id] = { name: s.name, styleLess: s.styleLess || "" }; });
+      return m;
+    }
+
+    function buildAssetMap(assets) {
+      const m = {};
+      (assets || []).forEach(a => { m[a._id] = a.cdnUrl || a.s3Url || ""; });
+      return m;
+    }
+
+    function resolveAssetTokens(css, assetMap) {
+      let out = String(css || "").replace(/@raw<\|([^|]*)\|>/g, (_, val) => val);
+      out = out.replace(/@img_([a-f0-9]+)/gi, (_, id) => {
+        const url = assetMap[id] || Object.entries(assetMap).find(([k]) => k.includes(id))?.[1] || "";
+        return url ? `url('${url}')` : "none";
+      });
+      return out;
+    }
+
+    const TAG_MAP = {
+      Block: "div", Section: "div", Container: "div", Heading: null, Paragraph: "p", Image: "img",
+      Link: "a", Button: "a", List: "ul", ListItem: "li", RichText: "div", Span: "span"
+    };
+
+    function resolveTag(node) {
+      if (node.tag) return node.tag;
+      if (node.type === "Heading") return `h${node.data?.level || 2}`;
+      return TAG_MAP[node.type] || "div";
+    }
+
+    function renderNode(nodeId, nodeMap, classMap, assetMap) {
+      const node = nodeMap[nodeId];
+      if (!node) return "";
+      if (node.text === true) return node.v != null ? String(node.v) : "";
+
+      if (node.type === "HtmlEmbed") {
+        const html = node.v || node.data?.embed?.meta?.html || "";
+        if (String(html).trim().startsWith("<script")) return "";
+        const cls = (node.classes || []).map(id => classMap[id]?.name).filter(Boolean).join(" ");
+        return `<div${cls ? ` class="${cls}"` : ""}>${html}</div>`;
+      }
+
+      let tag = node.tag;
+      if (!tag) {
+        if (node.type === "DOM") tag = node.data?.tag || "div";
+        else if (node.type === "Heading") tag = `h${node.data?.level || 2}`;
+        else tag = TAG_MAP[node.type] || "div";
+      }
+
+      const classNames = (node.classes || []).map(id => classMap[id]?.name).filter(Boolean).join(" ");
+      const classAttr = classNames ? ` class="${classNames}"` : "";
+      let extra = "";
+      if (tag === "a") extra += ` href="${node.data?.attr?.href || node.data?.link?.url || "#"}"`;
+
+      const xattrs = node.data?.xattr || [];
+      xattrs.forEach(x => { if (x.name) extra += ` ${x.name}="${x.value || ""}"`; });
+      const domAttrs = node.data?.attributes || [];
+      domAttrs.forEach(a => { if (a.name) extra += ` ${a.name}="${a.value || ""}"`; });
+
+      if (tag === "img") {
+        const src = node.data?.attr?.src || (node.data?.img?.id ? (assetMap[node.data.img.id] || "") : "");
+        return `<img${classAttr} src="${src}" alt="${node.data?.attr?.alt || ""}" style="display:block;max-width:100%;width:auto;height:auto;" />`;
+      }
+
+      const inner = (node.children || []).map(cid => renderNode(cid, nodeMap, classMap, assetMap)).join("");
+      return `<${tag}${classAttr}${extra}>${inner}</${tag}>`;
+    }
+
+    function parseWebflowJSONForCanvas(input) {
+      let p = typeof input === "string" ? JSON.parse(input) : input;
+      if (!p?.payload) {
+        if (p?.nodes) p = { type: "@webflow/XscpData", payload: p };
+        else throw new Error("Missing payload — not valid Webflow JSON");
+      }
+      const { nodes = [], styles = [], assets = [] } = p.payload;
+      if (!nodes.length) throw new Error("No nodes found");
+
+      const nodeMap = buildIdMap(nodes);
+      const classMap = buildClassMap(styles);
+      const assetMap = buildAssetMap(assets);
+      const allChildIds = new Set(nodes.flatMap(n => n.text ? [] : (n.children || [])));
+      const roots = nodes.filter(n => !n.text && !allChildIds.has(n._id));
+      const html = roots.map(n => renderNode(n._id, nodeMap, classMap, assetMap)).join("\n");
+
+      const cssRules = [];
+      const seen = new Set();
+      styles.forEach(s => {
+        if (!s.name || seen.has(s.name) || !s.styleLess?.trim()) return;
+        seen.add(s.name);
+        const css = resolveAssetTokens(s.styleLess, assetMap);
+        const rules = css.split(";").map(r => r.trim()).filter(Boolean).map(r => "  " + r + ";").join("\n");
+        cssRules.push(`.${s.name} {\n${rules}\n}`);
+        if (s.variants) {
+          Object.entries(s.variants).forEach(([v, vd]) => {
+            if (!vd.styleLess) return;
+            const pseudo = v.includes("hover") ? ":hover" : v.includes("active") ? ":active" : "";
+            if (!pseudo) return;
+            const vr = resolveAssetTokens(vd.styleLess, assetMap).split(";").map(r => r.trim()).filter(Boolean).map(r => "  " + r + ";").join("\n");
+            cssRules.push(`.${s.name}${pseudo} {\n${vr}\n}`);
+          });
+        }
+      });
+
+      return { html, css: cssRules.join("\n\n"), nodes, styles };
+    }
+
+    function renderCanvasPreview(html, css) {
+      const doc = canvasFrame.contentDocument || canvasFrame.contentWindow?.document;
+      if (!doc) throw new Error("Preview frame unavailable");
+      doc.open();
+      doc.write(buildPreviewDocument(html, css, { mode: 'canvas' }));
+      doc.close();
+    }
+
+    function buildPreviewDocument(html, css, options = {}) {
+      const mode = options.mode || 'card';
+      const scale = mode === 'canvas' ? 1 : 0.36;
+      const width = mode === 'canvas' ? '100%' : '1200px';
+      const viewportHeight = mode === 'canvas' ? 'auto' : '220px';
+      const bodyBg = mode === 'canvas' ? '#0a0a0a' : '#f6f8fc';
+      const bodyColor = mode === 'canvas' ? '#fff' : '#0f172a';
+      const overflow = mode === 'canvas' ? 'hidden' : 'auto';
+
+      return `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        html,body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:${bodyBg};color:${bodyColor};overflow:${overflow}}
+        body{min-height:100vh}
+        .preview-viewport{width:100%;height:${viewportHeight};overflow:${overflow};background:${bodyBg}}
+        .preview-stage{width:${width};transform:scale(${scale});transform-origin:top left}
+        ${css}
+      </style></head><body><div class="preview-viewport"><div class="preview-stage">${html}</div></div></body></html>`;
+    }
+
+    function renderCardPreviews(previewDocs) {
+      previewDocs.forEach(({ idx, doc }) => {
+        const frame = document.getElementById(`preview-frame-${idx}`);
+        if (!frame || !doc) return;
+        frame.srcdoc = doc;
+      });
+    }
+
+    function getTagCounts() {
+      const counts = {};
+      items.forEach(it => {
+        if (getTier(it) !== activeTier) return;
+        splitTags(it.tags).forEach(tag => { counts[tag] = (counts[tag] || 0) + 1; });
+      });
+      return counts;
+    }
+
+    function renderTags() {
+      const counts = getTagCounts();
+      const tags = Object.keys(counts).sort((a, b) => counts[b] - counts[a] || a.localeCompare(b));
+
+      if (!tags.length) {
+        tagListEl.innerHTML = '<div class="empty">No tags in this plan.</div>';
+        return;
+      }
+
+      tagListEl.innerHTML = tags.map(tag => `
+        <button class="tag-btn ${activeTag === tag ? 'active' : ''}" onclick="setTag('${tag.replace(/'/g, "\\'")}')">
+          <span>${escapeHtml(tag)}</span>
+          <span class="count">${counts[tag]}</span>
         </button>
-        <button onclick="event.stopPropagation();loadItem(${idx})">Edit</button>
-        <button class="btn-danger" onclick="event.stopPropagation();deleteItem(${idx})" style="flex:0; padding: 0 10px;">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-        </button>
-      </div>
-    </article>`;
-  }).join('');
-}
-
-// ══════════════════════════════════════════════════════════
-//  CARD ACTIONS
-// ══════════════════════════════════════════════════════════
-window.selectCard = function(idx) {
-  selectedPreviewIdx = idx;
-  render();
-};
-
-function copyForWebflow(jsonText) {
-  const payload = String(jsonText||'').trim();
-  if (!payload) throw new Error('Empty payload');
-  const onCopy = e => {
-    if (!e.clipboardData) return;
-    e.preventDefault();
-    e.clipboardData.setData('application/json', payload);
-    e.clipboardData.setData('text/plain', payload);
-  };
-  document.addEventListener('copy', onCopy);
-  const ok = document.execCommand('copy');
-  document.removeEventListener('copy', onCopy);
-  if (!ok && navigator.clipboard?.writeText) return navigator.clipboard.writeText(payload);
-  return Promise.resolve();
-}
-
-window.copyItem = async function(idx) {
-  const it = items[idx]; if (!it) return;
-  try { await copyForWebflow(it.json); showStatus(`Copied: ${it.name}`, false); }
-  catch(e) { showStatus(`Copy failed: ${e.message}`, true); }
-};
-
-window.loadItem = function(idx) {
-  const it = items[idx]; if (!it) return;
-  exName.value = it.name || '';
-  exTags.value = it.tags || '';
-  try { jsonInput.value = JSON.stringify(JSON.parse(it.json), null, 2); }
-  catch(_) { jsonInput.value = it.json; }
-  showStatus(`Loaded: ${it.name}`, false);
-  dock.style.display = 'block';
-};
-
-window.deleteItem = function(idx) {
-  const it = items[idx]; if (!it) return;
-  if (!confirm(`"${it.name}" delete karna chahte ho?`)) return;
-  items.splice(idx, 1);
-  if (selectedPreviewIdx === idx) selectedPreviewIdx = null;
-  save(); render();
-  showStatus(`Deleted: ${it.name}`, false);
-};
-
-// ══════════════════════════════════════════════════════════
-//  SAVE
-// ══════════════════════════════════════════════════════════
-document.getElementById('saveBtn').addEventListener('click', () => {
-  let name = exName.value.trim();
-  const tags = exTags.value.trim();
-  const raw = jsonInput.value.trim();
-  if (!raw) { showStatus('JSON required hai.', true); return; }
-  try {
-    const normalized = normalizeJson(raw);
-    if (!name) {
-      const pv = extractPreview(normalized);
-      name = (pv.title || 'Imported Example').slice(0,80);
+      `).join('');
     }
-    const idx = items.findIndex(x=>x.name.toLowerCase()===name.toLowerCase());
-    const payload = { name, tags, json: normalized, updatedAt: Date.now(), plan: idx>=0 ? normalizeItem(items[idx]).plan : activePlan };
-    if (idx>=0) items[idx]=payload; else items.unshift(payload);
-    save(); render();
-    showStatus(idx>=0 ? 'Example updated.' : 'Example saved.', false);
-    exName.value=''; exTags.value=''; jsonInput.value='';
-  } catch(_) { showStatus('Invalid JSON. Valid Webflow JSON paste karo.', true); }
-});
 
-// ══════════════════════════════════════════════════════════
-//  PASTE
-// ══════════════════════════════════════════════════════════
-document.getElementById('pasteBtn').addEventListener('click', async () => {
-  try {
-    let raw = '';
-    if (navigator.clipboard?.read) {
-      const clipItems = await navigator.clipboard.read();
-      for (const item of clipItems) {
-        if (item.types.includes('application/json')) { raw = await (await item.getType('application/json')).text(); break; }
-      }
-      if (!raw) for (const item of clipItems) {
-        if (item.types.includes('text/plain')) { raw = await (await item.getType('text/plain')).text(); break; }
-      }
+    window.setTag = function(tag) {
+      activeTag = activeTag === tag ? '' : tag;
+      render();
+    };
+
+    function matchesFilter(item) {
+      const text = `${item.name || ''} ${item.tags || ''}`.toLowerCase();
+      if (query && !text.includes(query)) return false;
+      if (getTier(item) !== activeTier) return false;
+      if (!activeTag) return true;
+      return splitTags(item.tags).includes(activeTag);
     }
-    if (!raw && navigator.clipboard?.readText) raw = await navigator.clipboard.readText();
-    raw = String(raw||'').trim();
-    if (!raw) { showStatus('Clipboard empty hai.', true); return; }
-    try {
-      const normalized = normalizeJson(raw);
-      jsonInput.value = JSON.stringify(JSON.parse(normalized), null, 2);
-      showStatus('Clipboard JSON pasted.', false);
-    } catch(_) { jsonInput.value = raw; showStatus('Clipboard pasted (non-JSON text).', true); }
-  } catch(e) { showStatus(`Paste failed: ${e.message||'permission denied'}`, true); }
-});
 
-document.getElementById('clearBtn').addEventListener('click', () => {
-  exName.value=''; exTags.value=''; jsonInput.value='';
-  showStatus('Form cleared.', false);
-});
-
-// ══════════════════════════════════════════════════════════
-//  JSON PASTE IN TEXTAREA
-// ══════════════════════════════════════════════════════════
-jsonInput.addEventListener('paste', e => {
-  const t = e.clipboardData && (e.clipboardData.getData('application/json') || e.clipboardData.getData('text/plain'));
-  if (!t) return;
-  e.preventDefault();
-  try {
-    const normalized = normalizeJson(t);
-    jsonInput.value = JSON.stringify(JSON.parse(normalized), null, 2);
-    showStatus('Webflow JSON pasted.', false);
-  } catch(_) { jsonInput.value = t; }
-});
-
-// ══════════════════════════════════════════════════════════
-//  IMPORT
-// ══════════════════════════════════════════════════════════
-function parseDelimitedText(text) {
-  const src = String(text||'').replace(/\r\n/g,'\n').replace(/\r/g,'\n');
-  const firstLine = src.split('\n').find(l=>l.trim());
-  const delim = firstLine&&firstLine.includes('\t')?'\t':',';
-  const rows=[]; let row=[],cell='',inQ=false;
-  for (let i=0;i<src.length;i++) {
-    const ch=src[i];
-    if (inQ) { if(ch==='"'){if(src[i+1]==='"'){cell+='"';i++;}else inQ=false;} else cell+=ch; continue; }
-    if(ch==='"'){inQ=true;continue;}
-    if(ch===delim){row.push(cell);cell='';continue;}
-    if(ch==='\n'){row.push(cell);rows.push(row);row=[];cell='';continue;}
-    cell+=ch;
-  }
-  if(cell||row.length){row.push(cell);rows.push(row);}
-  if(!rows.length)return[];
-  const headers=rows[0].map(slugifyHeader);
-  return rows.slice(1).filter(cols=>cols.some(v=>String(v||'').trim())).map(cols=>headers.reduce((acc,h,i)=>{acc[h||`column${i+1}`]=String(cols[i]||'').trim();return acc;},{}));
-}
-function getRowValue(row,keys){for(const k of keys){const m=Object.keys(row||{}).find(c=>slugifyHeader(c)===slugifyHeader(k));if(m&&String(row[m]||'').trim())return String(row[m]).trim();}return '';}
-async function parseImportRows(file) {
-  const name=String(file?.name||'').toLowerCase();
-  if(name.endsWith('.csv')||name.endsWith('.tsv')) return parseDelimitedText(await file.text());
-  if(name.endsWith('.json')){const p=JSON.parse(await file.text());return Array.isArray(p)?p:[];}
-  if((name.endsWith('.xlsx')||name.endsWith('.xls'))&&window.XLSX){
-    const wb=window.XLSX.read(await file.arrayBuffer(),{type:'array'});
-    const sn=wb.SheetNames[0]; if(!sn)return[];
-    return window.XLSX.utils.sheet_to_json(wb.Sheets[sn],{defval:''});
-  }
-  throw new Error('Unsupported file type.');
-}
-function makeExampleFromImportRow(row,index){
-  const name=getRowValue(row,['name','title','example name']);
-  const tags=getRowValue(row,['tags','tag']);
-  const rawJson=getRowValue(row,['json','webflowjson','payload']);
-  const planValue=getRowValue(row,['plan','tier']);
-  if(!rawJson) throw new Error(`Row ${index+2}: Webflow JSON required.`);
-  const json=normalizeJson(rawJson);
-  return normalizeItem({name:name||`Imported ${index+1}`,tags,json,updatedAt:Date.now()+index,plan:planValue==='premium'?'premium':'basic'});
-}
-importFileInput.addEventListener('change', async e => {
-  const file = e.target.files?.[0]; if(!file)return;
-  try {
-    const rows = await parseImportRows(file);
-    if(!rows.length) throw new Error('Import file empty.');
-    let added=0,updated=0;
-    rows.forEach((row,i)=>{
-      const p=makeExampleFromImportRow(row,i);
-      const ei=items.findIndex(x=>x.name.toLowerCase()===p.name.toLowerCase());
-      if(ei>=0){items[ei]=p;updated++;}else{items.unshift(p);added++;}
-    });
-    save(); render();
-    showStatus(`Import: ${added} added, ${updated} updated.`, false);
-  } catch(e2) { showStatus(`Import failed: ${e2.message}`, true); }
-});
-
-// ══════════════════════════════════════════════════════════
-//  CANVAS PREVIEW
-// ══════════════════════════════════════════════════════════
-function wfId(){return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&0x3|0x8)).toString(16);});}
-
-function buildIdMap(arr){const m={};(arr||[]).forEach(x=>{m[x._id]=x;});return m;}
-function buildClassMap(s){const m={};(s||[]).forEach(st=>{m[st._id]={name:st.name,styleLess:st.styleLess||""};});return m;}
-function buildAssetMap(a){const m={};(a||[]).forEach(x=>{m[x._id]=x.cdnUrl||x.s3Url||"";});return m;}
-function resolveAssetTokens(css,am){let o=String(css||"").replace(/@raw<\|([^|]*)\|>/g,(_,v)=>v);o=o.replace(/@img_([a-f0-9]+)/gi,(_,id)=>{const u=am[id]||Object.entries(am).find(([k])=>k.includes(id))?.[1]||"";return u?`url('${u}')`:"none";});return o;}
-const TAG_MAP={Block:"div",Section:"div",Container:"div",Heading:null,Paragraph:"p",Image:"img",Link:"a",Button:"a",List:"ul",ListItem:"li",RichText:"div",Span:"span"};
-function resolveTag(node){if(node.tag)return node.tag;if(node.type==="Heading")return `h${node.data?.level||2}`;return TAG_MAP[node.type]||"div";}
-function renderNode(nodeId,nm,cm,am){
-  const node=nm[nodeId]; if(!node)return "";
-  if(node.text===true)return node.v!=null?String(node.v):"";
-  if(node.type==="HtmlEmbed"){const html=node.v||node.data?.embed?.meta?.html||"";if(String(html).trim().startsWith("<script"))return "";const cls=(node.classes||[]).map(id=>cm[id]?.name).filter(Boolean).join(" ");return `<div${cls?` class="${cls}"`:""}>${html}</div>`;}
-  let tag=node.tag;
-  if(!tag){if(node.type==="DOM")tag=node.data?.tag||"div";else if(node.type==="Heading")tag=`h${node.data?.level||2}`;else tag=TAG_MAP[node.type]||"div";}
-  const classNames=(node.classes||[]).map(id=>cm[id]?.name).filter(Boolean).join(" ");
-  const classAttr=classNames?` class="${classNames}"`:"";
-  let extra="";
-  if(tag==="a")extra+=` href="${node.data?.attr?.href||node.data?.link?.url||"#"}"`;
-  (node.data?.xattr||[]).forEach(x=>{if(x.name)extra+=` ${x.name}="${x.value||""}"`});
-  (node.data?.attributes||[]).forEach(a=>{if(a.name)extra+=` ${a.name}="${a.value||""}"`});
-  if(tag==="img"){const src=node.data?.attr?.src||(node.data?.img?.id?(am[node.data.img.id]||""):"");return `<img${classAttr} src="${src}" alt="${node.data?.attr?.alt||""}" style="display:block;max-width:100%;width:auto;height:auto;"/>`;}
-  const inner=(node.children||[]).map(cid=>renderNode(cid,nm,cm,am)).join("");
-  return `<${tag}${classAttr}${extra}>${inner}</${tag}>`;
-}
-function parseWebflowJSONForCanvas(input){
-  let p=typeof input==="string"?JSON.parse(input):input;
-  if(!p?.payload){if(p?.nodes)p={type:"@webflow/XscpData",payload:p};else throw new Error("Missing payload");}
-  const{nodes=[],styles=[],assets=[]}=p.payload; if(!nodes.length)throw new Error("No nodes found");
-  const nm=buildIdMap(nodes),cm=buildClassMap(styles),am=buildAssetMap(assets);
-  const allChildIds=new Set(nodes.flatMap(n=>n.text?[]:(n.children||[])));
-  const roots=nodes.filter(n=>!n.text&&!allChildIds.has(n._id));
-  const html=roots.map(n=>renderNode(n._id,nm,cm,am)).join("\n");
-  const cssRules=[],seen=new Set();
-  styles.forEach(s=>{
-    if(!s.name||seen.has(s.name)||!s.styleLess?.trim())return;
-    seen.add(s.name);
-    const css=resolveAssetTokens(s.styleLess,am);
-    const rules=css.split(";").map(r=>r.trim()).filter(Boolean).map(r=>"  "+r+";").join("\n");
-    cssRules.push(`.${s.name} {\n${rules}\n}`);
-    if(s.variants)Object.entries(s.variants).forEach(([v,vd])=>{
-      if(!vd.styleLess)return;
-      const pseudo=v.includes("hover")?":hover":v.includes("active")?":active":"";
-      if(!pseudo)return;
-      const vr=resolveAssetTokens(vd.styleLess,am).split(";").map(r=>r.trim()).filter(Boolean).map(r=>"  "+r+";").join("\n");
-      cssRules.push(`.${s.name}${pseudo} {\n${vr}\n}`);
-    });
-  });
-  return{html,css:cssRules.join("\n\n"),nodes,styles};
-}
-function renderCanvasPreview(html,css){
-  const doc=canvasFrame.contentDocument||canvasFrame.contentWindow?.document;
-  if(!doc)throw new Error("Preview frame unavailable");
-  doc.open();
-  doc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>*{box-sizing:border-box;margin:0;padding:0}html,body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;color:#fff;}${css}</style></head><body>${html}</body></html>`);
-  doc.close();
-}
-
-previewCanvasBtn.addEventListener('click', () => {
-  try {
-    let target = items[selectedPreviewIdx];
-    if (!target) {
+    function render() {
+      renderTags();
       const filtered = items.filter(matchesFilter);
-      if (!filtered.length) throw new Error('No example available');
-      target = filtered[0]; selectedPreviewIdx = items.indexOf(target);
+      const previewDocs = [];
+
+      if (!filtered.length) {
+        listEl.innerHTML = '<div class="empty">No matching examples.</div>';
+        return;
+      }
+
+      if (selectedPreviewIdx == null || !items[selectedPreviewIdx]) {
+        selectedPreviewIdx = items.indexOf(filtered[0]);
+      }
+
+      listEl.innerHTML = filtered.map((it) => {
+        const idx = items.indexOf(it);
+        const tier = getTier(it);
+        const pv = extractPreviewFromJson(it.json);
+        let previewDoc = '';
+        try {
+          const parsed = parseWebflowJSONForCanvas(it.json);
+          previewDoc = buildPreviewDocument(parsed.html, parsed.css);
+        } catch (_) {
+          previewDoc = '';
+        }
+        previewDocs.push({ idx, doc: previewDoc });
+        return `
+          <article class="card" data-idx="${idx}">
+            <div class="card-head">
+              <div>
+                <p class="name">${escapeHtml(it.name || 'Untitled')}</p>
+                <p class="meta">${(it.json || '').length} chars</p>
+              </div>
+              <span class="plan-badge ${tier}">${escapeHtml(tier)}</span>
+            </div>
+            <div class="visual-preview">
+              ${previewDoc
+                ? `<iframe id="preview-frame-${idx}" class="visual-frame" title="${escapeHtml(it.name || 'Preview')}" loading="lazy"></iframe>`
+                : `<div class="visual-fallback">Preview unavailable for this section.</div>`}
+            </div>
+            <div class="card-actions">
+              <button class="primary" id="copy-btn-${idx}" onclick="copyItem(${idx})">Webflow</button>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      renderCardPreviews(previewDocs);
     }
-    const parsed = parseWebflowJSONForCanvas(target.json);
-    renderCanvasPreview(parsed.html, parsed.css);
-    canvasMeta.textContent = `Preview: ${target.name||'Untitled'} · nodes ${parsed.nodes.filter(n=>!n.text).length} · styles ${parsed.styles.length}`;
-    showStatus('Canvas preview rendered.', false);
-  } catch(e) {
-    canvasMeta.textContent = `Preview failed: ${e.message}`;
-    showStatus(`Preview failed: ${e.message}`, true);
-  }
-});
 
-// ══════════════════════════════════════════════════════════
-//  PRESET DATA
-// ══════════════════════════════════════════════════════════
-function makeDemoJson(headline,sub,image){
-  const sId=wfId(),cId=wfId(),hId=wfId(),pId=wfId(),imgId=wfId(),t1=wfId(),t2=wfId(),cS=wfId(),cC=wfId(),cT=wfId(),cSu=wfId(),cI=wfId();
-  return JSON.stringify({type:"@webflow/XscpData",payload:{nodes:[
-    {_id:sId,type:"Section",tag:"section",classes:[cS],children:[cId],data:{tag:"section",grid:{type:"section"}}},
-    {_id:cId,type:"Block",tag:"div",classes:[cC],children:[hId,pId,imgId],data:{text:false,tag:"div"}},
-    {_id:hId,type:"Heading",tag:"h2",classes:[cT],children:[t1],data:{tag:"h2"}},
-    {_id:t1,text:true,v:headline},
-    {_id:pId,type:"Paragraph",tag:"p",classes:[cSu],children:[t2],data:{}},
-    {_id:t2,text:true,v:sub},
-    {_id:imgId,type:"Image",tag:"img",classes:[cI],children:[],data:{img:{},attr:{width:"auto",height:"auto",alt:"preview",src:image,loading:"auto",id:""}}}
-  ],styles:[
-    {_id:cS,fake:false,type:"class",name:"demo-section",namespace:"",comb:"",styleLess:"padding-top: 72px; padding-right: 5%; padding-bottom: 72px; padding-left: 5%; background: #f8fafc;",variants:{},children:[]},
-    {_id:cC,fake:false,type:"class",name:"demo-container",namespace:"",comb:"",styleLess:"width: 100%; max-width: 72rem; margin-right: auto; margin-left: auto; display: flex; flex-direction: column; row-gap: 12px;",variants:{},children:[]},
-    {_id:cT,fake:false,type:"class",name:"demo-title",namespace:"",comb:"",styleLess:"font-size: 2rem; color: #0f172a;",variants:{},children:[]},
-    {_id:cSu,fake:false,type:"class",name:"demo-sub",namespace:"",comb:"",styleLess:"color: #64748b; font-size: 1rem; line-height: 1.6;",variants:{},children:[]},
-    {_id:cI,fake:false,type:"class",name:"demo-image",namespace:"",comb:"",styleLess:"width: 100%; border-radius: 16px;",variants:{},children:[]}
-  ],assets:[],ix1:[],ix2:{interactions:[],events:[],actionLists:[]}},meta:{droppedLinks:0,dynBindRemovedCount:0,dynListBindRemovedCount:0,paginationRemovedCount:0,universalBindingsRemovedCount:0,unlinkedSymbolCount:0,codeComponentsRemovedCount:0}});
-}
+    function copyForWebflow(jsonText) {
+      const payload = String(jsonText || '').trim();
+      if (!payload) throw new Error('Empty payload');
 
-function getDemoItems(){
-  return [
-    {name:'Enterprise SaaS Hero',tags:'hero, saas, enterprise, conversion',plan:'basic',json:makeDemoJson('Scale product storytelling with a modular hero system','Performance-focused headline, supporting copy, and a visual-first launch block.','https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=1600&auto=format&fit=crop')},
-    {name:'Feature Grid Pro',tags:'features, grid, product, content',plan:'basic',json:makeDemoJson('Show product value in structured feature clusters','Reusable feature layout designed for high-scan readability.','https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1600&auto=format&fit=crop')},
-    {name:'Testimonial Wall Pro',tags:'testimonial, trust, social-proof, b2b',plan:'basic',json:makeDemoJson('Trusted by high-growth product teams','Social proof section optimized for credibility and conversion lift.','https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=1600&auto=format&fit=crop')},
-    {name:'Pricing Comparison Pro',tags:'pricing, plans, comparison',plan:'basic',json:makeDemoJson('Pricing designed for clear decision-making','Tiered plan narrative with sharp contrast between starter and scale.','https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=1600&auto=format&fit=crop')},
-    {name:'Case Study Spotlight',tags:'case-study, storytelling, conversion',plan:'basic',json:makeDemoJson('From fragmented pages to a unified web engine','Long-form case study section built for measurable business outcomes.','https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1600&auto=format&fit=crop')},
-    {name:'FAQ Conversion Block',tags:'faq, support, objections',plan:'basic',json:makeDemoJson('Answer objections before they block conversion','FAQ structure tuned for clarity, trust, and reduced bounce.','https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=1600&auto=format&fit=crop')},
-    {name:'CTA Banner Premium',tags:'cta, banner, marketing',plan:'basic',json:makeDemoJson('Turn intent into action with one focused CTA','High-contrast action module for product tours, demos, and signups.','https://images.unsplash.com/photo-1552581234-26160f608093?q=80&w=1600&auto=format&fit=crop')},
-    {name:'Blog Cards Editorial',tags:'blog, content, editorial',plan:'basic',json:makeDemoJson('Editorial cards that support growth content','Modern article card section with strong typography.','https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?q=80&w=1600&auto=format&fit=crop')},
-    {name:'Team Section Executive',tags:'team, company, profile',plan:'basic',json:makeDemoJson('Highlight the people behind the product','Leadership-focused section for trust, authority, and brand personality.','https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop')},
-    {name:'Footer Multi-Column Pro',tags:'footer, navigation, links',plan:'basic',json:makeDemoJson('Footer architecture built for large sites','Structured multi-column layout for product, company, and legal.','https://images.unsplash.com/photo-1509395176047-4a66953fd231?q=80&w=1600&auto=format&fit=crop')},
-  ];
-}
+      const onCopy = (event) => {
+        if (!event.clipboardData) return;
+        event.preventDefault();
+        event.clipboardData.setData('application/json', payload);
+        event.clipboardData.setData('text/plain', payload);
+      };
 
-// FLOWPONENT preset (abbreviated — only a small set to keep file size manageable)
-const FLOWPONENT_PRESET = [{"name":"I'm Jason, Creative Director from London","tags":"left-aligned,image,website,section,hero","json":"{\"type\":\"@webflow/XscpData\",\"payload\":{\"nodes\":[{\"_id\":\"b28b8f49-ea7e-9300-2753-89e6557629cd\",\"tag\":\"div\",\"classes\":[\"6d26249b-7094-9ff4-4146-c41c6ec86ab9\"],\"children\":[\"f4bc044c-4ade-c694-a84c-b15b0658ae4d\"],\"type\":\"Section\",\"data\":{\"tag\":\"div\",\"grid\":{\"type\":\"section\"}}},{\"_id\":\"f4bc044c-4ade-c694-a84c-b15b0658ae4d\",\"tag\":\"div\",\"classes\":[\"3f642fc5-b225-9da8-27bc-283e59d47648\"],\"children\":[\"f4bc044c-4ade-c694-a84c-b15b0658ae4e\"],\"type\":\"Block\",\"data\":{\"tag\":\"div\",\"text\":false}},{\"_id\":\"f4bc044c-4ade-c694-a84c-b15b0658ae4e\",\"tag\":\"div\",\"classes\":[\"b3209375-ba3f-8dc4-568c-94654d844ac8\",\"6d26249b-7094-9ff4-4146-c41c6ec86ae0\"],\"children\":[\"f4bc044c-4ade-c694-a84c-b15b0658ae4f\"],\"type\":\"Block\",\"data\":{\"tag\":\"div\",\"text\":false}},{\"_id\":\"f4bc044c-4ade-c694-a84c-b15b0658ae4f\",\"tag\":\"div\",\"classes\":[\"3f642fc5-b225-9da8-27bc-283e59d4763f\"],\"children\":[\"f4bc044c-4ade-c694-a84c-b15b0658ae50\",\"f4bc044c-4ade-c694-a84c-b15b0658ae52\",\"f4bc044c-4ade-c694-a84c-b15b0658ae54\"],\"type\":\"Block\",\"data\":{\"tag\":\"div\",\"text\":false}},{\"_id\":\"f4bc044c-4ade-c694-a84c-b15b0658ae50\",\"tag\":\"div\",\"classes\":[\"b3209375-ba3f-8dc4-568c-94654d844ad3\"],\"children\":[\"f4bc044c-4ade-c694-a84c-b15b0658ae51\"],\"type\":\"Block\",\"data\":{\"text\":true,\"tag\":\"div\"}},{\"_id\":\"f4bc044c-4ade-c694-a84c-b15b0658ae51\",\"text\":true,\"v\":\"Welcome to my Portfolio\"},{\"_id\":\"f4bc044c-4ade-c694-a84c-b15b0658ae52\",\"tag\":\"h1\",\"classes\":[\"6d26249b-7094-9ff4-4146-c41c6ec86abb\"],\"children\":[\"f4bc044c-4ade-c694-a84c-b15b0658ae53\"],\"type\":\"Heading\",\"data\":{\"tag\":\"h1\"}},{\"_id\":\"f4bc044c-4ade-c694-a84c-b15b0658ae53\",\"text\":true,\"v\":\"I'm Jason, Creative Director from London\"},{\"_id\":\"f4bc044c-4ade-c694-a84c-b15b0658ae54\",\"tag\":\"a\",\"classes\":[\"6d26249b-7094-9ff4-4146-c41c6ec86abd\"],\"children\":[\"f4bc044c-4ade-c694-a84c-b15b0658ae55\"],\"type\":\"Link\",\"data\":{\"button\":true,\"attr\":{\"href\":\"#\"},\"link\":{\"url\":\"#\"}}},{\"_id\":\"f4bc044c-4ade-c694-a84c-b15b0658ae55\",\"text\":true,\"v\":\"Contact Me\"}],\"styles\":[{\"_id\":\"6d26249b-7094-9ff4-4146-c41c6ec86ab9\",\"fake\":false,\"type\":\"class\",\"name\":\"section-dark\",\"namespace\":\"\",\"comb\":\"\",\"styleLess\":\"overflow: hidden; background-color: #111212; color: white;\",\"variants\":{},\"children\":[]},{\"_id\":\"3f642fc5-b225-9da8-27bc-283e59d47648\",\"fake\":false,\"type\":\"class\",\"name\":\"hero2-dark\",\"namespace\":\"\",\"comb\":\"\",\"styleLess\":\"display: flex; height: 674px; align-items: center;\",\"variants\":{},\"children\":[]},{\"_id\":\"b3209375-ba3f-8dc4-568c-94654d844ac8\",\"fake\":false,\"type\":\"class\",\"name\":\"wrap\",\"namespace\":\"\",\"comb\":\"\",\"styleLess\":\"display: block; width: 940px; margin-right: auto; margin-left: auto;\",\"variants\":{},\"children\":[]},{\"_id\":\"6d26249b-7094-9ff4-4146-c41c6ec86ae0\",\"fake\":false,\"type\":\"class\",\"name\":\"w50-center\",\"namespace\":\"\",\"comb\":\"&\",\"styleLess\":\"display: flex; padding-top: 50px; padding-bottom: 50px; align-items: center;\",\"variants\":{},\"children\":[]},{\"_id\":\"3f642fc5-b225-9da8-27bc-283e59d4763f\",\"fake\":false,\"type\":\"class\",\"name\":\"hero2-text-wrap\",\"namespace\":\"\",\"comb\":\"\",\"styleLess\":\"width: 45%;\",\"variants\":{},\"children\":[]},{\"_id\":\"b3209375-ba3f-8dc4-568c-94654d844ad3\",\"fake\":false,\"type\":\"class\",\"name\":\"tagline\",\"namespace\":\"\",\"comb\":\"\",\"styleLess\":\"opacity: 0.6; font-size: 12px; letter-spacing: 2px; text-transform: uppercase;\",\"variants\":{},\"children\":[]},{\"_id\":\"6d26249b-7094-9ff4-4146-c41c6ec86abb\",\"fake\":false,\"type\":\"class\",\"name\":\"h1-jumbo\",\"namespace\":\"\",\"comb\":\"\",\"styleLess\":\"margin-top: 15px; margin-bottom: 15px; font-size: 54px; line-height: 70px; font-weight: 300;\",\"variants\":{},\"children\":[]},{\"_id\":\"6d26249b-7094-9ff4-4146-c41c6ec86abd\",\"fake\":false,\"type\":\"class\",\"name\":\"btn-big\",\"namespace\":\"\",\"comb\":\"\",\"styleLess\":\"display: inline-block; margin-top: 10px; padding: 16px 35px; border-radius: 4px; background-color: #1991eb; color: white; font-size: 16px;\",\"variants\":{},\"children\":[]}],\"assets\":[],\"ix1\":[],\"ix2\":{\"interactions\":[],\"events\":[],\"actionLists\":[]}},\"meta\":{\"unlinkedSymbolCount\":1,\"droppedLinks\":0,\"dynBindRemovedCount\":0,\"dynListBindRemovedCount\":0,\"paginationRemovedCount\":0}}","updatedAt":0,"source":"flowponent"}];
+      document.addEventListener('copy', onCopy);
+      const ok = document.execCommand('copy');
+      document.removeEventListener('copy', onCopy);
 
-function getAllPresetItems() {
-  return [
-    ...FLOWPONENT_PRESET.map(it=>({...it,plan:'basic',tags:[it.tags,'flowponent','combined'].filter(Boolean).join(',')})),
-    ...getDemoItems().map(it=>({...it,plan:'basic',tags:[it.tags,'demo','combined'].filter(Boolean).join(',')}))
-  ];
-}
+      if (!ok) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          return navigator.clipboard.writeText(payload);
+        }
+        throw new Error('Copy blocked');
+      }
+      return Promise.resolve();
+    }
 
-// ══════════════════════════════════════════════════════════
-//  EVENTS
-// ══════════════════════════════════════════════════════════
-document.getElementById('allExamplesBtn').addEventListener('click', async () => {
-  const presetItems = getAllPresetItems().map(it=>({...it,updatedAt:Date.now()}));
-  const premiumItems = await loadBundledPremiumItems();
-  const combinedItems = mergeUniqueItems(presetItems, premiumItems);
-  if (items.length && !confirm(`Current examples replace karke saare ${combinedItems.length} examples load karein?`)) return;
-  items = combinedItems;
-  save(); render();
-  showStatus(`${combinedItems.length} examples loaded.`, false);
-});
+    window.copyItem = async function(idx) {
+      const it = items[idx];
+      if (!it) return;
+      const btn = document.getElementById(`copy-btn-${idx}`);
+      const previousLabel = btn ? btn.textContent : '';
+      try {
+        await copyForWebflow(it.json);
+        if (btn) {
+          btn.textContent = 'Copied';
+          btn.disabled = true;
+          setTimeout(() => {
+            const currentBtn = document.getElementById(`copy-btn-${idx}`);
+            if (!currentBtn) return;
+            currentBtn.textContent = 'Webflow';
+            currentBtn.disabled = false;
+          }, 1400);
+        }
+        showStatus(`Copied for Webflow: ${it.name}`, false);
+      } catch (e) {
+        if (btn) btn.textContent = previousLabel || 'Webflow';
+        showStatus(`Copy failed: ${e.message || 'unknown'}`, true);
+      }
+    };
 
-document.getElementById('openDock').addEventListener('click', () => {
-  dock.style.display='block'; exName.focus();
-});
-document.getElementById('closeDock').addEventListener('click', () => { dock.style.display='none'; });
+    window.loadItem = function(idx) {
+      const it = items[idx];
+      if (!it) return;
+      exName.value = it.name || '';
+      exTags.value = it.tags || '';
+      jsonInput.value = JSON.stringify(JSON.parse(it.json), null, 2);
+      showStatus(`Loaded: ${it.name}`, false);
+      dock.style.display = 'block';
+    };
 
-premiumImportBtn.addEventListener('click', () => { importFileInput.value=''; importFileInput.click(); });
-document.getElementById('sampleFileBtn')?.addEventListener('click', () => {
-  const a=document.createElement('a'); a.href='./premium-import-sample.xlsx'; a.download='premium-import-sample.xlsx'; a.click();
-});
+    window.deleteItem = function(idx) {
+      const it = items[idx];
+      if (!it) return;
+      items.splice(idx, 1);
+      if (selectedPreviewIdx === idx) selectedPreviewIdx = null;
+      save();
+      render();
+      showStatus(`Deleted: ${it.name}`, false);
+    };
 
-searchInput.addEventListener('input', e => { query=(e.target.value||'').trim().toLowerCase(); render(); });
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      let name = exName.value.trim();
+      const tags = exTags.value.trim();
+      const raw = jsonInput.value.trim();
+      if (!raw) {
+        showStatus('JSON required hai.', true);
+        return;
+      }
+      try {
+        const normalized = normalizeJson(raw);
+        if (!name) {
+          const pv = extractPreviewFromJson(normalized);
+          name = (pv && pv.title ? pv.title : 'Imported Example').slice(0, 80);
+        }
+        const idx = items.findIndex((x) => x.name.toLowerCase() === name.toLowerCase());
+        const payload = { name, tags, json: normalized, updatedAt: Date.now() };
+        if (idx >= 0) items[idx] = payload;
+        else items.unshift(payload);
+        save();
+        render();
+        showStatus(idx >= 0 ? 'Example updated.' : 'Example saved.', false);
+        exName.value = '';
+        exTags.value = '';
+        jsonInput.value = '';
+      } catch (_) {
+        showStatus('Invalid JSON. Please paste valid Webflow JSON.', true);
+      }
+    });
 
-planSelect.addEventListener('change', e => {
-  activePlan = e.target.value==='premium'?'premium':'basic';
-  activeTag='all'; selectedPreviewIdx=null;
-  updatePremiumUI(); render();
-});
+    document.getElementById('pasteBtn').addEventListener('click', async () => {
+      try {
+        let raw = '';
 
-function updatePremiumUI() {
-  premiumImportBtn.hidden = activePlan!=='premium';
-  sampleFileBtn.hidden = activePlan!=='premium';
-}
+        // Prefer structured clipboard formats from Webflow/third-party tools.
+        if (navigator.clipboard && navigator.clipboard.read) {
+          const items = await navigator.clipboard.read();
+          for (const item of items) {
+            if (item.types.includes('application/json')) {
+              const blob = await item.getType('application/json');
+              raw = await blob.text();
+              break;
+            }
+          }
+          if (!raw) {
+            for (const item of items) {
+              if (item.types.includes('text/plain')) {
+                const blob = await item.getType('text/plain');
+                raw = await blob.text();
+                break;
+              }
+            }
+          }
+        }
 
-listEl.addEventListener('click', e => {
-  const card = e.target.closest('.card[data-idx]');
-  if (!card) return;
-  const idx = Number(card.getAttribute('data-idx'));
-  if (Number.isInteger(idx)) selectedPreviewIdx = idx;
-});
+        if (!raw && navigator.clipboard && navigator.clipboard.readText) {
+          raw = await navigator.clipboard.readText();
+        }
 
-// ══════════════════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════════════════
-async function init() {
-  load();
-  const premiumItems = await loadBundledPremiumItems();
-  items = mergeUniqueItems(items, premiumItems);
-  save();
-  updatePremiumUI();
-  render();
-}
+        raw = String(raw || '').trim();
+        if (!raw) {
+          showStatus('Clipboard empty hai.', true);
+          return;
+        }
 
-init();
-</script>
+        try {
+          const normalized = normalizeJson(raw);
+          jsonInput.value = JSON.stringify(JSON.parse(normalized), null, 2);
+          showStatus('Clipboard JSON pasted.', false);
+        } catch (_) {
+          jsonInput.value = raw;
+          showStatus('Clipboard pasted (non-JSON text).', true);
+        }
+      } catch (e) {
+        showStatus(`Paste failed: ${e.message || 'permission denied'}`, true);
+      }
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      exName.value = '';
+      exTags.value = '';
+      jsonInput.value = '';
+      showStatus('Form cleared.', false);
+    });
+
+    jsonInput.addEventListener('paste', (e) => {
+      const t = e.clipboardData && (e.clipboardData.getData('application/json') || e.clipboardData.getData('text/plain'));
+      if (!t) return;
+      e.preventDefault();
+      try {
+        const normalized = normalizeJson(t);
+        jsonInput.value = JSON.stringify(JSON.parse(normalized), null, 2);
+        showStatus('Pasted Webflow JSON from clipboard.', false);
+      } catch (_) {
+        jsonInput.value = t;
+      }
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(items, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `webflow-json-examples-${Date.now()}.json`;
+      a.click();
+      showStatus('Export downloaded.', false);
+    });
+
+    document.getElementById('seedBtn').addEventListener('click', () => {
+      if (items.length && !confirm('Current examples replace karke demo load karein?')) return;
+      items = getDemoItems().map(it => ({ ...it, updatedAt: Date.now() }));
+      save();
+      render();
+      showStatus('Demo examples loaded.', false);
+    });
+
+    document.getElementById('openDock').addEventListener('click', () => {
+      dock.style.display = 'block';
+      exName.focus();
+    });
+
+    document.getElementById('closeDock').addEventListener('click', () => {
+      dock.style.display = 'none';
+    });
+
+    searchInput.addEventListener('input', (e) => {
+      query = (e.target.value || '').trim().toLowerCase();
+      render();
+    });
+
+    tierFilter.addEventListener('change', (e) => {
+      activeTier = e.target.value || 'free';
+      if (activeTag && !getTagCounts()[activeTag]) activeTag = '';
+      render();
+    });
+
+    listEl.addEventListener('click', (e) => {
+      const card = e.target.closest('.card[data-idx]');
+      if (!card) return;
+      const idx = Number(card.getAttribute('data-idx'));
+      if (Number.isInteger(idx)) selectedPreviewIdx = idx;
+    });
+
+    previewCanvasBtn.addEventListener('click', () => {
+      try {
+        let target = items[selectedPreviewIdx];
+        if (!target) {
+          const filtered = items.filter(matchesFilter);
+          if (!filtered.length) throw new Error('No example available for preview');
+          target = filtered[0];
+          selectedPreviewIdx = items.indexOf(target);
+        }
+        const parsed = parseWebflowJSONForCanvas(target.json);
+        renderCanvasPreview(parsed.html, parsed.css);
+        canvasMeta.textContent = `Preview: ${target.name || 'Untitled'} · nodes ${parsed.nodes.filter(n => !n.text).length} · styles ${parsed.styles.length}`;
+        showStatus('Canvas preview rendered.', false);
+      } catch (e) {
+        canvasMeta.textContent = `Preview failed: ${e.message || 'unknown error'}`;
+        showStatus(`Preview failed: ${e.message || 'unknown error'}`, true);
+      }
+    });
+
+    load();
+    render();
+    loadProLibrary();
+  </script>
 </body>
 </html>
