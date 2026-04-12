@@ -467,8 +467,6 @@
         </div>
         <div class="toolbar">
           <button id="openDock" class="primary">+ Add Example</button>
-          <button id="seedBtn">Load Demo Examples</button>
-          <button id="exportBtn">Export JSON</button>
         </div>
       </div>
 
@@ -1258,23 +1256,6 @@
       } catch (_) {
         jsonInput.value = t;
       }
-    });
-
-    document.getElementById('exportBtn').addEventListener('click', () => {
-      const blob = new Blob([JSON.stringify(items, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `webflow-json-examples-${Date.now()}.json`;
-      a.click();
-      showStatus('Export downloaded.', false);
-    });
-
-    document.getElementById('seedBtn').addEventListener('click', () => {
-      if (items.length && !confirm('Current examples replace karke demo load karein?')) return;
-      items = getDemoItems().map(it => ({ ...it, updatedAt: Date.now() }));
-      save();
-      render();
-      showStatus('Demo examples loaded.', false);
     });
 
     document.getElementById('openDock').addEventListener('click', () => {
